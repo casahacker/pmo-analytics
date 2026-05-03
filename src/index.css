@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    @apply text-slate-300 bg-[#0c0e12] antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+}
+
+@layer components {
+  .bento-card {
+    @apply bg-slate-900/40 border border-slate-800 rounded-xl transition-all duration-300 hover:border-slate-700/50;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-800 rounded-full hover:bg-slate-700;
+  }
+}
+
+@layer utilities {
+  @media print {
+    body {
+      background-color: white !important;
+      color: black !important;
+    }
+    
+    header, nav, aside, footer, button, .print\:hidden {
+      display: none !important;
+    }
+    
+    main {
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100% !important;
+    }
+
+    .max-w-\[1800px\] {
+      max-width: none !important;
+    }
+
+    .p-4, .p-8, .md\:p-8 {
+      padding: 0 !important;
+    }
+
+    .grid {
+      display: block !important;
+    }
+
+    .col-span-12 {
+      width: 100% !important;
+    }
+
+    .bento-card {
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+    
+    .bg-white {
+      background-color: white !important;
+    }
+    
+    .text-slate-900 {
+      color: #0f172a !important;
+    }
+  }
+}

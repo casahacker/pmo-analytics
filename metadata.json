@@ -1,0 +1,6 @@
+{
+  "name": "Casa Hacker PMO Analytics",
+  "description": "Dashboard de monitoramento de projetos de impacto social da Casa Hacker, consolidando métricas do Jira.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["Data Analytics", "Project Management"]
+}
