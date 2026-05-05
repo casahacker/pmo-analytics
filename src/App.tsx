@@ -25,7 +25,15 @@ import {
   getMissingFieldsFrequency,
   getWorkloadByAssignee,
   getHealthByAssignee,
-  getResolutionTimeByProject
+  getResolutionTimeByProject,
+  getSankeyFlowData,
+  getCalendarActivityData,
+  getRiskBubbleData,
+  getTreemapByProject,
+  getRadarHealthData,
+  getFunnelData,
+  getLeadTimeDistribution,
+  getContributorMatrix
 } from "./lib/analytics";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { cn } from "./lib/utils";
@@ -190,6 +198,14 @@ export default function App() {
   const workloadData = useMemo(() => getWorkloadByAssignee(filteredIssues), [filteredIssues]);
   const healthAssigneeData = useMemo(() => getHealthByAssignee(filteredIssues), [filteredIssues]);
   const resolutionData = useMemo(() => getResolutionTimeByProject(filteredIssues), [filteredIssues]);
+  const sankeyData = useMemo(() => getSankeyFlowData(filteredIssues), [filteredIssues]);
+  const calendarData = useMemo(() => getCalendarActivityData(filteredIssues), [filteredIssues]);
+  const bubbleData = useMemo(() => getRiskBubbleData(filteredIssues), [filteredIssues]);
+  const treemapData = useMemo(() => getTreemapByProject(filteredIssues), [filteredIssues]);
+  const radarData = useMemo(() => getRadarHealthData(filteredIssues), [filteredIssues]);
+  const funnelData = useMemo(() => getFunnelData(filteredIssues), [filteredIssues]);
+  const leadTimeData = useMemo(() => getLeadTimeDistribution(filteredIssues), [filteredIssues]);
+  const contributorData = useMemo(() => getContributorMatrix(filteredIssues), [filteredIssues]);
 
   const planningIssues = useMemo(() => {
     return filteredIssues.filter(issue => {
@@ -407,6 +423,14 @@ export default function App() {
                 healthAssigneeData={healthAssigneeData}
                 resolutionData={resolutionData}
                 filteredIssues={filteredIssues}
+                sankeyData={sankeyData}
+                calendarData={calendarData}
+                bubbleData={bubbleData}
+                treemapData={treemapData}
+                radarData={radarData}
+                funnelData={funnelData}
+                leadTimeData={leadTimeData}
+                contributorData={contributorData}
               />
             ) : currentTab === "notifications" ? (
               <NotificationsTab
