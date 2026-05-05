@@ -2,10 +2,17 @@ services:
   pmo-analytics:
     build: .
     container_name: casa-hacker-pmo-analytics
-    restart: "no"
+    restart: "on-failure:3"
     ports:
       - "127.0.0.1:18087:3000"
     env_file:
       - .env
     volumes:
       - /data/pmo-analytics:/app/data:z
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.89.7.0/24
