@@ -10,11 +10,13 @@ import {
   Calendar
 } from "lucide-react";
 import { cn } from "../lib/utils";
+import { Dropdown } from "./Dropdown";
 
 interface SidebarProps {
   currentTab: string;
   onTabChange: (tab: string) => void;
   onRefresh: () => void;
+  isRefreshing?: boolean;
   projects: { key: string; name: string }[];
   selectedProject: string;
   onProjectChange: (project: string) => void;
@@ -27,6 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentTab,
   onTabChange,
   onRefresh,
+  isRefreshing = false,
   projects,
   selectedProject,
   onProjectChange,
@@ -41,7 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <img
             src="https://casahacker.org/wp-content/uploads/2023/07/logo_vertical-branco.svg"
             alt="Casa Hacker"
-            className="h-10 w-auto self-start"
+            className="h-10 w-auto self-start brightness-0 opacity-80"
             referrerPolicy="no-referrer"
           />
           <p className="text-[10px] font-light text-text-secondary uppercase tracking-[0.2em]">
@@ -64,8 +67,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <button
             key={id}
             onClick={() => onTabChange(id)}
+            aria-current={currentTab === id ? "page" : undefined}
             className={cn(
-              "w-full flex items-center gap-3 px-5 py-3 text-[13px] transition-all duration-200 border-l-[3px]",
+              "w-full flex items-center gap-3 px-5 py-3 text-[13px] transition-all duration-200 border-l-[3px] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset",
               currentTab === id
                 ? "bg-sidebar-active text-primary border-l-primary"
                 : "text-text-secondary hover:text-text hover:bg-sidebar-active border-l-transparent"
@@ -86,32 +90,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <label className="text-[11px] font-semibold text-text-secondary uppercase flex items-center gap-1.5">
                 <Layers className="w-3 h-3" /> Projeto
               </label>
-              <select
+              <Dropdown
                 value={selectedProject}
-                onChange={(e) => onProjectChange(e.target.value)}
-                className="w-full bg-sidebar border border-line text-text rounded px-2 py-1.5 text-[12px] focus:outline-none focus:border-primary transition-colors cursor-pointer"
-              >
-                <option value="All">Todos os Projetos</option>
-                {projects.map(p => (
-                  <option key={p.key} value={p.key}>{p.name} ({p.key})</option>
-                ))}
-              </select>
+                onChange={onProjectChange}
+                items={[
+                  { value: "All", label: "Todos os Projetos" },
+                  ...projects.map(p => ({ value: p.key, label: `${p.name} (${p.key})` }))
+                ]}
+              />
             </div>
 
             <div className="space-y-1.5">
               <label className="text-[11px] font-semibold text-text-secondary uppercase flex items-center gap-1.5">
                 <Users className="w-3 h-3" /> Responsável
               </label>
-              <select
+              <Dropdown
                 value={selectedAssignee}
-                onChange={(e) => onAssigneeChange(e.target.value)}
-                className="w-full bg-sidebar border border-line text-text rounded px-2 py-1.5 text-[12px] focus:outline-none focus:border-primary transition-colors cursor-pointer"
-              >
-                <option value="All">Todos</option>
-                {assignees.map(a => (
-                  <option key={a} value={a}>{a}</option>
-                ))}
-              </select>
+                onChange={onAssigneeChange}
+                items={[
+                  { value: "All", label: "Todos" },
+                  ...assignees.map(a => ({ value: a, label: a }))
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -120,10 +120,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="px-4 py-4 border-t border-line">
         <button
           onClick={onRefresh}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-sidebar hover:bg-sidebar-active border border-line text-text text-[12px] font-semibold rounded transition-all"
+          disabled={isRefreshing}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-sidebar hover:bg-sidebar-active border border-line text-text text-[12px] font-semibold rounded transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <RefreshCcw className="w-3.5 h-3.5" />
-          Atualizar
+          <RefreshCcw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
+          {isRefreshing ? "Atualizando..." : "Atualizar"}
         </button>
         <div className="mt-3 flex items-center justify-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-[#198038] shadow-[0_0_8px_rgba(25,128,56,0.7)] animate-pulse"></div>

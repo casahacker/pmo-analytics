@@ -41,6 +41,11 @@
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-line rounded-full hover:bg-text-secondary/30;
   }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #e0e0e0 transparent;
+  }
 }
 
 @layer utilities {

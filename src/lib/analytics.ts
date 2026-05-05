@@ -40,7 +40,7 @@ export function getIssuesByPriority(issues: NormalizedIssue[]) {
     .filter(p => p.value > 0);
 }
 
-export function getTrentData(issues: NormalizedIssue[], freq: 'D' | 'W' | 'M' = 'W') {
+export function getTrendData(issues: NormalizedIssue[], freq: 'D' | 'W' | 'M' = 'W') {
   const created: Record<string, number> = {};
   const completed: Record<string, number> = {};
 

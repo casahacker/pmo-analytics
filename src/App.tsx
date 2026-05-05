@@ -32,7 +32,7 @@ import {
   getIssuesByStatus,
   getIssuesByType,
   getIssuesByPriority,
-  getTrentData,
+  getTrendData,
   getIssuesByProject,
   getOverdueByProject,
   getQualityByProject,
@@ -47,17 +47,16 @@ import {
 } from "recharts";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { cn } from "./lib/utils";
-
-const COLORS = ["#0f62fe", "#198038", "#da1e28", "#f1c21b", "#8a3ffc", "#ff7eb6"];
-const STATUS_COLORS: Record<string, string> = {
-  "new": "#0f62fe",
-  "indeterminate": "#f1c21b",
-  "done": "#198038",
-  "undefined": "#8d8d8d"
-};
+import { COLORS, STATUS_COLORS, MONTHS_PT, TOOLTIP_STYLE } from "./lib/constants";
+import { StatusTag } from "./components/StatusTag";
+import { InlineNotification } from "./components/InlineNotification";
+import { Button } from "./components/Button";
+import { ChartTooltip } from "./components/ChartTooltip";
+import { Pagination } from "./components/Pagination";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [rawIssues, setRawIssues] = useState<any[]>([]);
   const [currentTab, setCurrentTab] = useState("analytics");
   const initialIssueKey = useRef<string | null>(null);
@@ -200,7 +199,7 @@ export default function App() {
   const statusData = useMemo(() => getIssuesByStatus(filteredIssues), [filteredIssues]);
   const typeData = useMemo(() => getIssuesByType(filteredIssues), [filteredIssues]);
   const priorityData = useMemo(() => getIssuesByPriority(filteredIssues), [filteredIssues]);
-  const trendData = useMemo(() => getTrentData(filteredIssues), [filteredIssues]);
+  const trendData = useMemo(() => getTrendData(filteredIssues), [filteredIssues]);
   const projectDist = useMemo(() => getIssuesByProject(filteredIssues), [filteredIssues]);
   const overdueDist = useMemo(() => getOverdueByProject(filteredIssues), [filteredIssues]);
   const qualityDist = useMemo(() => getQualityByProject(filteredIssues), [filteredIssues]);
@@ -236,7 +235,15 @@ export default function App() {
     return diligenceAnomalies.slice(start, start + itemsPerPage);
   }, [diligenceAnomalies, currentPage]);
 
-  const handleRefresh = async () => { await axios.post("/api/refresh"); fetchData(); };
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await axios.post("/api/refresh");
+      await fetchData();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const copyShareLink = () => {
     const url = new URL(window.location.href);
@@ -283,8 +290,6 @@ export default function App() {
     setModalCopySuccess(true);
     setTimeout(() => setModalCopySuccess(false), 2000);
   };
-
-  const MONTHS_PT = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
   const handleDocumensoSign = async () => {
     setDocumensoLoading(true);
@@ -333,14 +338,13 @@ export default function App() {
     );
   }
 
-  const tooltipStyle = { backgroundColor: '#ffffff', borderColor: '#e0e0e0', borderRadius: '4px', fontSize: '11px', color: '#161616' };
-
   return (
     <div className="flex bg-bg min-h-screen text-text font-sans selection:bg-primary/20">
       <Sidebar
         currentTab={currentTab}
         onTabChange={setCurrentTab}
         onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
         projects={projectData}
         selectedProject={selectedProject}
         onProjectChange={setSelectedProject}
@@ -356,7 +360,7 @@ export default function App() {
               <img
                 src="https://casahacker.org/wp-content/uploads/2023/07/logo_vertical-branco.svg"
                 alt="Casa Hacker"
-                className="h-10 w-auto invert opacity-90"
+                className="h-10 w-auto brightness-0 opacity-80"
                 referrerPolicy="no-referrer"
               />
               <div className="flex flex-col">
@@ -438,7 +442,7 @@ export default function App() {
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
                         <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#525252' }} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#525252' }} />
-                        <Tooltip contentStyle={tooltipStyle} />
+                        <Tooltip content={<ChartTooltip />} />
                         <Area type="monotone" dataKey="completed" name="Resolvidas" stroke="#198038" strokeWidth={2} fillOpacity={1} fill="url(#colorRes)" />
                         <Area type="monotone" dataKey="created" name="Criadas" stroke="#8d8d8d" strokeWidth={2} fill="transparent" />
                       </AreaChart>
@@ -479,7 +483,7 @@ export default function App() {
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
-                        <Tooltip contentStyle={tooltipStyle} />
+                        <Tooltip content={<ChartTooltip />} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -494,7 +498,7 @@ export default function App() {
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#525252' }} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#525252' }} />
-                        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#f4f4f4' }} />
+                        <Tooltip content={<ChartTooltip />} cursor={{ fill: '#f4f4f4' }} />
                         <Bar dataKey="done" stackId="a" fill="#198038" radius={[0, 0, 0, 0]} barSize={32} />
                         <Bar dataKey="inProgress" stackId="a" fill="#f1c21b" barSize={32} />
                         <Bar dataKey="todo" stackId="a" fill="#0f62fe" radius={[4, 4, 0, 0]} barSize={32} />
@@ -532,7 +536,7 @@ export default function App() {
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e0e0e0" />
                         <XAxis type="number" hide />
                         <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 8, fill: '#525252' }} width={80} />
-                        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#f4f4f4' }} />
+                        <Tooltip content={<ChartTooltip />} cursor={{ fill: '#f4f4f4' }} />
                         <Bar dataKey="value" fill="#0f62fe" radius={[0, 4, 4, 0]} barSize={12} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -571,7 +575,7 @@ export default function App() {
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
                         <XAxis dataKey="key" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#525252' }} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#525252' }} />
-                        <Tooltip contentStyle={tooltipStyle} itemStyle={{ color: '#198038' }} />
+                        <Tooltip content={<ChartTooltip />} />
                         <Bar dataKey="avgDays" fill="#198038" radius={[4, 4, 0, 0]} name="Dias Médios" barSize={40} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -743,15 +747,27 @@ export default function App() {
                     <div className="flex items-center gap-2 mr-4">
                       <span className="text-[10px] text-text-secondary font-bold uppercase">Parecer PMO:</span>
                       <div className="flex gap-1">
-                        <button onClick={() => setReportStatus(prev => ({...prev, [selectedProject]: "approved"}))} className={cn("px-2 py-1 rounded text-[10px] font-bold uppercase transition-all flex items-center gap-1.5 border", reportStatus[selectedProject] === "approved" ? "bg-success/20 border-success text-success" : "bg-sidebar border-line text-text-secondary hover:border-success/50")}>
-                          <FileCheck className="w-3 h-3" /> Aprovada
-                        </button>
-                        <button onClick={() => setReportStatus(prev => ({...prev, [selectedProject]: "warning"}))} className={cn("px-2 py-1 rounded text-[10px] font-bold uppercase transition-all flex items-center gap-1.5 border", reportStatus[selectedProject] === "warning" ? "bg-warning/20 border-warning text-warning" : "bg-sidebar border-line text-text-secondary hover:border-warning/50")}>
-                          <AlertTriangle className="w-3 h-3" /> Ressalvas
-                        </button>
-                        <button onClick={() => setReportStatus(prev => ({...prev, [selectedProject]: "rejected"}))} className={cn("px-2 py-1 rounded text-[10px] font-bold uppercase transition-all flex items-center gap-1.5 border", reportStatus[selectedProject] === "rejected" ? "bg-error/20 border-error text-error" : "bg-sidebar border-line text-text-secondary hover:border-error/50")}>
-                          <FileX className="w-3 h-3" /> Rejeitada
-                        </button>
+                        <Button
+                          kind={reportStatus[selectedProject] === "approved" ? "primary" : "ghost"}
+                          size="sm"
+                          icon={<FileCheck className="w-3 h-3" />}
+                          onClick={() => setReportStatus(prev => ({...prev, [selectedProject]: "approved"}))}
+                          className={reportStatus[selectedProject] === "approved" ? "bg-success border-success hover:bg-success/90" : "hover:border-success/50"}
+                        >Aprovada</Button>
+                        <Button
+                          kind={reportStatus[selectedProject] === "warning" ? "tertiary" : "ghost"}
+                          size="sm"
+                          icon={<AlertTriangle className="w-3 h-3" />}
+                          onClick={() => setReportStatus(prev => ({...prev, [selectedProject]: "warning"}))}
+                          className={reportStatus[selectedProject] === "warning" ? "text-warning border-warning bg-warning/10 hover:bg-warning/20" : "hover:border-warning/50"}
+                        >Ressalvas</Button>
+                        <Button
+                          kind={reportStatus[selectedProject] === "rejected" ? "danger" : "ghost"}
+                          size="sm"
+                          icon={<FileX className="w-3 h-3" />}
+                          onClick={() => setReportStatus(prev => ({...prev, [selectedProject]: "rejected"}))}
+                          className={reportStatus[selectedProject] === "rejected" ? "" : "hover:border-error/50"}
+                        >Rejeitada</Button>
                       </div>
                     </div>
                     <PDFDownloadLink
@@ -1014,10 +1030,7 @@ export default function App() {
                                 <span className="font-mono font-bold text-text-secondary">{issue.dueDate ? format(parseISO(issue.dueDate), "dd/MM/yy") : "--"}</span>
                               </td>
                               <td className="py-4 px-4 text-center">
-                                <span className={cn("px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter",
-                                  issue.statusCategory === "done" ? "bg-success/10 text-success" :
-                                  issue.statusCategory === "indeterminate" ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary"
-                                )}>{issue.status}</span>
+                                <StatusTag status={issue.status} statusCategory={issue.statusCategory as any} />
                               </td>
                               <td className="py-4 px-4 text-center">
                                 <div className="flex justify-center">
@@ -1033,7 +1046,7 @@ export default function App() {
                                   <button onClick={() => setSelectedIssueForDetail(issue)} className="p-1.5 rounded bg-sidebar border border-line text-text-secondary hover:bg-sidebar-active hover:text-text transition-colors" title="Ver Detalhes">
                                     <FileText className="w-3.5 h-3.5" />
                                   </button>
-                                  <a href={`https://jira.casahacker.org/browse/${issue.key}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" title="Abrir no Jira">
+                                  <a href={`https://jira.casahacker.org/browse/${issue.key}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" aria-label="Abrir no Jira" title="Abrir no Jira">
                                     <ExternalLink className="w-3.5 h-3.5" />
                                   </a>
                                 </div>
@@ -1087,11 +1100,13 @@ export default function App() {
                     <div className="flex justify-between items-center mb-6">
                       <h3 className="text-xs font-bold text-text uppercase tracking-widest italic opacity-70">Execução do Protocolo Crítico — Correções de Campo Urgentes</h3>
                       <div className="flex items-center gap-4">
-                        <span className="text-[10px] text-text-secondary font-bold uppercase hidden md:inline">Página {currentPage} de {totalPages || 1}</span>
-                        <div className="flex gap-2">
-                          <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-2 py-1 bg-sidebar hover:bg-sidebar-active border border-line disabled:opacity-30 disabled:cursor-not-allowed rounded text-[10px] font-bold text-text transition-colors">Anterior</button>
-                          <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage >= totalPages} className="px-2 py-1 bg-sidebar hover:bg-sidebar-active border border-line disabled:opacity-30 disabled:cursor-not-allowed rounded text-[10px] font-bold text-text transition-colors">Próxima</button>
-                        </div>
+                        <Pagination
+                          page={currentPage}
+                          totalPages={totalPages || 1}
+                          onPageChange={setCurrentPage}
+                          totalItems={diligenceAnomalies.length}
+                          pageSize={itemsPerPage}
+                        />
                       </div>
                     </div>
                     <div className="overflow-x-auto custom-scrollbar">
@@ -1179,7 +1194,7 @@ export default function App() {
 
       {/* Issue Detail Modal */}
       {selectedIssueForDetail && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+        <div role="dialog" aria-modal="true" aria-label="Detalhes da Tarefa" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-card border border-line rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-line flex justify-between items-start bg-sidebar">
               <div className="space-y-1">
@@ -1189,7 +1204,7 @@ export default function App() {
                 </div>
                 <h2 className="text-lg font-bold text-text leading-tight">{selectedIssueForDetail.summary}</h2>
               </div>
-              <button onClick={() => setSelectedIssueForDetail(null)} className="p-2 hover:bg-sidebar-active rounded-full transition-colors text-text-secondary hover:text-text">
+              <button onClick={() => setSelectedIssueForDetail(null)} aria-label="Fechar modal" className="p-2 hover:bg-sidebar-active rounded-full transition-colors text-text-secondary hover:text-text focus:outline-none focus:ring-2 focus:ring-primary">
                 <div className="w-5 h-5 flex items-center justify-center font-bold text-xl">×</div>
               </button>
             </div>
@@ -1215,48 +1230,35 @@ export default function App() {
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   {selectedIssueForDetail.isOverdue && (
-                    <div className="group p-4 bg-error/10 border border-error/30 rounded-xl flex gap-4 items-start">
-                      <div className="w-8 h-8 rounded-full bg-error/20 flex items-center justify-center shrink-0">
-                        <AlertCircle className="w-4 h-4 text-error animate-pulse" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-xs font-bold text-error uppercase tracking-tight italic flex items-center gap-2">
-                          ATENÇÃO: ITEM EM ATRASO <span className="px-1.5 py-0.5 bg-error/20 rounded text-[9px]">CRÍTICO</span>
-                        </div>
-                        <p className="text-[11px] text-text leading-relaxed font-bold">Esta issue ultrapassou a Data de Entrega (Due Date). Entrega obrigatória imediata para evitar impacto no cronograma geral do projeto. Atualize o status ou repactue a data se houver justificativa.</p>
-                      </div>
-                    </div>
+                    <InlineNotification
+                      kind="error"
+                      title="ATENÇÃO: ITEM EM ATRASO — CRÍTICO"
+                      subtitle="Esta issue ultrapassou a Data de Entrega (Due Date). Entrega obrigatória imediata para evitar impacto no cronograma geral do projeto. Atualize o status ou repactue a data se houver justificativa."
+                    />
                   )}
                   {selectedIssueForDetail.missingFields.length > 0 ? (
                     selectedIssueForDetail.missingFields.map((field) => (
-                      <div key={field} className="group p-4 bg-warning/5 border border-warning/20 rounded-xl flex gap-4 items-start">
-                        <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center shrink-0">
-                          <AlertCircle className="w-4 h-4 text-warning" />
-                        </div>
-                        <div className="space-y-1">
-                          <div className="text-xs font-bold text-warning uppercase tracking-tight">Pendência: {field}</div>
-                          <p className="text-[11px] text-text-secondary leading-relaxed font-medium">
-                            {field === "Responsável" && "Ação Requerida: Atribuir um responsável direto. Vá ao Jira, clique no campo 'Responsável' e selecione o membro da equipe encarregado."}
-                            {field === "Data de Entrega" && "Ação Requerida: Definir data de entrega. Clique no campo 'Data de Entrega' (customfield_10501) e selecione a data final prevista."}
-                            {field === "Sprint" && "Ação Requerida: Vincular a uma Sprint. No Jira, arraste a issue para o quadro da Sprint ativa ou selecione no campo 'Sprint'."}
-                            {(field === "Prioridade" || field === "Prioridade Indispensável") && "Ação Requerida: Definir criticidade. Clique no ícone de prioridade e selecione o nível conforme o protocolo."}
-                            {field === "Data de Início" && "Ação Requerida: Informar data de início. Preencha o campo customizado 'Data de Início' para tracking de lead time."}
-                            {field === "Link do Epic" && "Ação Requerida: Vincular a um Epic. Use o campo 'Link do Epic' para associar esta tarefa ao seu projeto guarda-chuva."}
-                            {field === "Descrição" && "Ação Requerida: Adicionar detalhamento. Escreva o escopo da tarefa para garantir que a equipe entenda os requisitos."}
-                          </p>
-                        </div>
-                      </div>
+                      <InlineNotification
+                        key={field}
+                        kind="warning"
+                        title={`Pendência: ${field}`}
+                        subtitle={
+                          field === "Responsável" ? "Ação Requerida: Atribuir um responsável direto. Vá ao Jira, clique no campo 'Responsável' e selecione o membro da equipe encarregado." :
+                          field === "Data de Entrega" ? "Ação Requerida: Definir data de entrega. Clique no campo 'Data de Entrega' (customfield_10501) e selecione a data final prevista." :
+                          field === "Sprint" ? "Ação Requerida: Vincular a uma Sprint. No Jira, arraste a issue para o quadro da Sprint ativa ou selecione no campo 'Sprint'." :
+                          (field === "Prioridade" || field === "Prioridade Indispensável") ? "Ação Requerida: Definir criticidade. Clique no ícone de prioridade e selecione o nível conforme o protocolo." :
+                          field === "Data de Início" ? "Ação Requerida: Informar data de início. Preencha o campo customizado 'Data de Início' para tracking de lead time." :
+                          field === "Link do Epic" ? "Ação Requerida: Vincular a um Epic. Use o campo 'Link do Epic' para associar esta tarefa ao seu projeto guarda-chuva." :
+                          field === "Descrição" ? "Ação Requerida: Adicionar detalhamento. Escreva o escopo da tarefa para garantir que a equipe entenda os requisitos." : undefined
+                        }
+                      />
                     ))
                   ) : !selectedIssueForDetail.isOverdue ? (
-                    <div className="p-8 bg-success/5 border border-success/20 rounded-xl flex flex-col items-center justify-center gap-3 text-center">
-                      <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
-                        <CheckCircle2 className="w-6 h-6 text-success" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="text-xs font-bold text-success uppercase tracking-widest">Conformidade Total</div>
-                        <p className="text-[10px] text-text-secondary font-medium">Esta issue atende a todos os critérios do protocolo de diligência de dados.</p>
-                      </div>
-                    </div>
+                    <InlineNotification
+                      kind="success"
+                      title="Conformidade Total"
+                      subtitle="Esta issue atende a todos os critérios do protocolo de diligência de dados."
+                    />
                   ) : null}
                 </div>
               </div>
@@ -1282,7 +1284,7 @@ export default function App() {
 
       {/* Documenso Modal */}
       {showDocumensoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+        <div role="dialog" aria-modal="true" aria-label="Assinar Relatório" className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
           <div className="bg-card border border-line rounded-2xl p-6 w-full max-w-md shadow-2xl">
             <h2 className="text-sm font-bold uppercase tracking-widest text-text mb-4 flex items-center gap-2">
               <PenLine className="w-4 h-4 text-success" /> Assinar Relatório com Documenso
