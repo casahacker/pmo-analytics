@@ -5,6 +5,8 @@ import axios from "axios";
 import NodeCache from "node-cache";
 import dotenv from "dotenv";
 import session from "express-session";
+import { createRequire } from "module";
+const FileStore = createRequire(import.meta.url)("session-file-store");
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
@@ -86,7 +88,9 @@ async function fetchJiraIssues(projectKey: string) {
 app.set("trust proxy", 1);
 
 // Session
+const SessionFileStore = FileStore(session);
 app.use(session({
+  store: new SessionFileStore({ path: "/app/data/sessions", ttl: 28800, reapInterval: 3600 }),
   secret: process.env.SESSION_SECRET || "changeme-set-SESSION_SECRET",
   resave: false,
   saveUninitialized: false,
