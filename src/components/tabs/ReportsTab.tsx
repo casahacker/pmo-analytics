@@ -47,7 +47,7 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
 }) => {
   return (
     <div className="col-span-12 space-y-6">
-      <div className="flex justify-between items-center bg-card p-6 rounded-xl border border-line">
+      <div className="flex justify-between items-center bg-card p-6 rounded border border-line">
         <div className="flex gap-4 items-end">
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-text uppercase tracking-widest">RELATÓRIO DE EXECUÇÃO</h3>
@@ -111,78 +111,78 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
       </div>
 
       {/* Report Document (white) */}
-      <div className="bg-white text-slate-900 rounded-xl p-8 print:p-0 print:shadow-none min-h-[800px] text-left flex flex-col border border-line">
-        <header className="flex justify-between border-b-2 border-slate-900 pb-6 mb-8 items-end">
+      <div className="bg-white text-text rounded p-8 print:p-0 print:shadow-none min-h-[800px] text-left flex flex-col border border-line">
+        <header className="flex justify-between border-b-2 border-text pb-6 mb-8 items-end">
           <div>
             <div className="flex items-center gap-4 mb-4">
               <img src="https://casahacker.org/wp-content/uploads/2023/07/logo_vertical-branco.svg" alt="Casa Hacker" className="h-8 w-auto grayscale brightness-0" referrerPolicy="no-referrer" />
-              <div className="h-8 w-px bg-slate-200"></div>
+              <div className="h-8 w-px bg-line"></div>
               <div className="flex flex-col">
-                <span className="text-xs font-black text-slate-900 tracking-tighter uppercase">Associação Casa Hacker</span>
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">PMO Data Analytics</span>
+                <span className="text-xs font-bold text-text tracking-tight uppercase">Associação Casa Hacker</span>
+                <span className="text-[9px] font-bold text-text-secondary uppercase tracking-wide leading-none">PMO Data Analytics</span>
               </div>
             </div>
-            <h2 className="text-2xl font-black italic tracking-tighter">RELATÓRIO DE EXECUÇÃO</h2>
-            <p className="text-xs font-serif font-bold italic text-slate-600">Projeto: {selectedProject === "All" ? "Todos os Projetos Ativos" : (projectData.find(p => p.key === selectedProject)?.name || selectedProject)}</p>
+            <h2 className="text-2xl font-bold tracking-tight">RELATÓRIO DE EXECUÇÃO</h2>
+            <p className="text-xs font-medium text-text-secondary">Projeto: {selectedProject === "All" ? "Todos os Projetos Ativos" : (projectData.find(p => p.key === selectedProject)?.name || selectedProject)}</p>
           </div>
           <div className="flex flex-col items-end">
-            <span className={cn("px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-2 border-2",
-              reportStatus[selectedProject] === "approved" ? "border-emerald-600 text-emerald-600" :
-              reportStatus[selectedProject] === "warning" ? "border-amber-600 text-amber-600" :
-              reportStatus[selectedProject] === "rejected" ? "border-rose-600 text-rose-600" : "border-slate-300 text-slate-300"
+            <span className={cn("px-4 py-1 rounded text-xs font-bold uppercase tracking-wide mb-2 border-2",
+              reportStatus[selectedProject] === "approved" ? "border-success text-success" :
+              reportStatus[selectedProject] === "warning" ? "border-warning text-warning" :
+              reportStatus[selectedProject] === "rejected" ? "border-error text-error" : "border-line text-text-secondary"
             )}>
               {reportStatus[selectedProject] === "approved" ? "Execução Aprovada" : reportStatus[selectedProject] === "warning" ? "Aprovada com Ressalvas" : reportStatus[selectedProject] === "rejected" ? "Execução Rejeitada" : "Pendente de Avaliação"}
             </span>
-            <span className="text-[9px] font-bold text-slate-400">Ciclo Monitorado: {MONTHS_PT[reportMonth]} / {reportYear}</span>
+            <span className="text-[9px] font-bold text-text-secondary">Ciclo Monitorado: {MONTHS_PT[reportMonth]} / {reportYear}</span>
           </div>
         </header>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <div className="space-y-4">
-            <div className="bg-emerald-50 p-4 border border-emerald-100 rounded-lg">
-              <h5 className="text-[10px] font-bold uppercase text-emerald-700 mb-4 border-b border-emerald-200 pb-2 flex justify-between">
+            <div className="bg-success/5 p-4 border border-success/20 rounded">
+              <h5 className="text-[10px] font-bold uppercase text-success mb-4 border-b border-success/20 pb-2 flex justify-between">
                 Concluídas no Período <span>{reportIssues.filter(i => i.statusCategory === "done").length} Items</span>
               </h5>
               <div className="space-y-2">
                 {reportIssues.filter(i => i.statusCategory === "done").map(issue => (
-                  <div key={issue.key} className="flex gap-3 items-start border-b border-emerald-100 pb-2">
-                    <span className="text-[9px] font-mono font-bold text-emerald-500 shrink-0">{issue.key}</span>
-                    <p className="text-[10px] font-medium leading-tight text-slate-700">{issue.summary}</p>
+                  <div key={issue.key} className="flex gap-3 items-start border-b border-success/10 pb-2">
+                    <span className="text-[9px] font-mono font-bold text-success shrink-0">{issue.key}</span>
+                    <p className="text-[10px] font-medium leading-tight text-text">{issue.summary}</p>
                   </div>
                 ))}
                 {reportIssues.filter(i => i.statusCategory === "done").length === 0 && (
-                  <p className="text-[10px] italic text-slate-400 text-center py-4">Nenhuma entrega concluída no período.</p>
+                  <p className="text-[10px] text-text-secondary text-center py-4">Nenhuma entrega concluída no período.</p>
                 )}
               </div>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="bg-rose-50 p-4 border border-rose-100 rounded-lg h-full flex flex-col">
-              <h5 className="text-[10px] font-bold uppercase text-rose-700 mb-4 border-b border-rose-200 pb-2 flex justify-between">
+            <div className="bg-error/5 p-4 border border-error/20 rounded h-full flex flex-col">
+              <h5 className="text-[10px] font-bold uppercase text-error mb-4 border-b border-error/20 pb-2 flex justify-between">
                 Pendentes / Em Aberto <span>{reportIssues.filter(i => i.statusCategory !== "done").length} Items</span>
               </h5>
               <div className="space-y-2 flex-grow">
                 {reportIssues.filter(i => i.statusCategory !== "done").map(issue => (
-                  <div key={issue.key} className="flex gap-3 items-start border-b border-rose-100 pb-2">
-                    <span className="text-[9px] font-mono font-bold text-rose-500 shrink-0">{issue.key}</span>
+                  <div key={issue.key} className="flex gap-3 items-start border-b border-error/10 pb-2">
+                    <span className="text-[9px] font-mono font-bold text-error shrink-0">{issue.key}</span>
                     <div className="space-y-0.5">
-                      <p className="text-[10px] font-medium leading-tight text-slate-700">{issue.summary}</p>
-                      <p className="text-[8px] font-bold uppercase text-rose-500 italic text-left">
-                        <span className="text-rose-600 not-italic">Gargalo:</span> {pdfPendingIssues.find(p => p.key === issue.key)?.bottleneckReason ?? "Aguardando Alocação"}
+                      <p className="text-[10px] font-medium leading-tight text-text">{issue.summary}</p>
+                      <p className="text-[8px] font-bold uppercase text-error text-left">
+                        <span className="text-error">Gargalo:</span> {pdfPendingIssues.find(p => p.key === issue.key)?.bottleneckReason ?? "Aguardando Alocação"}
                       </p>
                     </div>
                   </div>
                 ))}
                 {reportIssues.filter(i => i.statusCategory !== "done").length === 0 && (
-                  <p className="text-[10px] italic text-slate-400 text-center py-4">Fila de execução limpa.</p>
+                  <p className="text-[10px] text-text-secondary text-center py-4">Fila de execução limpa.</p>
                 )}
               </div>
-              <div className="mt-4 pt-3 border-t border-rose-200/50">
-                <p className="text-[8px] font-black text-rose-800 uppercase tracking-widest mb-1.5 opacity-60">Significado dos Status de Gargalo:</p>
+              <div className="mt-4 pt-3 border-t border-error/20">
+                <p className="text-[8px] font-bold text-error uppercase tracking-wide mb-1.5 opacity-60">Significado dos Status de Gargalo:</p>
                 <div className="grid grid-cols-1 gap-y-1.5">
                   {[["Atraso", "Task com prazo original do Jira vencido"], ["Impedimento", "Task bloqueada por dependência externa"], ["Inativo", "Sem movimentação no Ticket por mais de 15 dias"], ["Aguardando Alocação", "Task no fluxo do mês aguardando execução"]].map(([label, desc]) => (
                     <div key={label} className="flex items-center gap-1.5 grayscale">
-                      <div className="w-1 h-1 bg-rose-500 rounded-full"></div>
-                      <span className="text-[7px] text-rose-900 font-bold leading-none uppercase"><span className="text-rose-600">{label}:</span> {desc}</span>
+                      <div className="w-1 h-1 bg-error rounded"></div>
+                      <span className="text-[7px] text-error font-bold leading-none uppercase"><span className="text-error">{label}:</span> {desc}</span>
                     </div>
                   ))}
                 </div>
@@ -190,54 +190,54 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
             </div>
           </div>
         </div>
-        <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-12">
-          <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-4 text-left">Análise Qualitativa da Notificação</h5>
+        <div className="bg-bg p-6 rounded border border-line mb-12">
+          <h5 className="text-xs font-bold uppercase tracking-wide text-text mb-4 text-left">Análise Qualitativa da Notificação</h5>
           <div className="grid grid-cols-3 gap-6">
             <div className="space-y-1 text-left">
-              <span className="text-[9px] font-bold uppercase text-slate-500">Score de Qualidade</span>
-              <p className="text-xl font-black tracking-tighter text-slate-900">{(kpis.avgCompleteness * 100).toFixed(0)} <span className="text-xs font-normal">pts</span></p>
-              <p className="text-[10px] text-slate-400 leading-tight">Métrica baseada na completude das informações de tarefas e subtarefas.</p>
+              <span className="text-[9px] font-bold uppercase text-text-secondary">Score de Qualidade</span>
+              <p className="text-xl font-bold tracking-tight text-text">{(kpis.avgCompleteness * 100).toFixed(0)} <span className="text-xs font-normal">pts</span></p>
+              <p className="text-[10px] text-text-secondary leading-tight">Métrica baseada na completude das informações de tarefas e subtarefas.</p>
             </div>
             <div className="space-y-1 text-left">
-              <span className="text-[9px] font-bold uppercase text-slate-500">Impacto em Atraso</span>
-              <p className="text-xl font-black tracking-tighter text-rose-600">{kpis.overdue} <span className="text-xs font-normal">Issues</span></p>
-              <p className="text-[10px] text-slate-400 leading-tight">Volume de entregas com cronograma comprometido ou vencido.</p>
+              <span className="text-[9px] font-bold uppercase text-text-secondary">Impacto em Atraso</span>
+              <p className="text-xl font-bold tracking-tight text-error">{kpis.overdue} <span className="text-xs font-normal">Issues</span></p>
+              <p className="text-[10px] text-text-secondary leading-tight">Volume de entregas com cronograma comprometido ou vencido.</p>
             </div>
             <div className="space-y-1 text-left">
-              <span className="text-[9px] font-bold uppercase text-slate-500">Capacidade Operacional</span>
-              <p className="text-xl font-black tracking-tighter text-blue-600">{kpis.total} <span className="text-xs font-normal">Total</span></p>
-              <p className="text-[10px] text-slate-400 leading-tight">Total de demandas monitoradas neste ciclo de status.</p>
+              <span className="text-[9px] font-bold uppercase text-text-secondary">Capacidade Operacional</span>
+              <p className="text-xl font-bold tracking-tight text-primary">{kpis.total} <span className="text-xs font-normal">Total</span></p>
+              <p className="text-[10px] text-text-secondary leading-tight">Total de demandas monitoradas neste ciclo de status.</p>
             </div>
           </div>
         </div>
         <div className="mt-12 grid grid-cols-2 gap-12">
           <div className="space-y-4">
-            <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-900 border-b border-slate-200 pb-2 text-left">Observações</h5>
-            <div className="h-24 w-full border border-slate-100 bg-slate-50/50 rounded p-3 text-[10px] text-slate-400 italic">Insira notas adicionais sobre o progresso, riscos ou decisões tomadas no período monitorado...</div>
+            <h5 className="text-xs font-bold uppercase tracking-wide text-text border-b border-line pb-2 text-left">Observações</h5>
+            <div className="h-24 w-full border border-line bg-bg rounded p-3 text-xs text-text-secondary">Insira notas adicionais sobre o progresso, riscos ou decisões tomadas no período monitorado...</div>
           </div>
           <div className="flex flex-col justify-end items-center pb-2">
-            <div className="w-full border-t border-slate-900 pt-2 text-center">
-              <p className="text-[10px] font-black uppercase text-slate-900">Assinatura Responsável Técnico</p>
-              <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">ASSOCIAÇÃO CASA HACKER</p>
+            <div className="w-full border-t border-text pt-2 text-center">
+              <p className="text-[10px] font-bold uppercase text-text">Assinatura Responsável Técnico</p>
+              <p className="text-[8px] font-bold text-text-secondary uppercase tracking-wide">ASSOCIAÇÃO CASA HACKER</p>
             </div>
           </div>
         </div>
-        <div className="mt-auto pt-16 border-t border-slate-200 flex flex-col gap-6 text-slate-400">
+        <div className="mt-auto pt-16 border-t border-line flex flex-col gap-6 text-text-secondary">
           <div className="flex justify-between items-start">
             <div className="space-y-1 text-left">
-              <p className="text-[10px] font-black uppercase text-slate-900 leading-none">PMO Data Analytics</p>
-              <p className="text-[9px] font-bold uppercase text-slate-600">{selectedProject === "All" ? "Relatório Global" : (projectData.find(p => p.key === selectedProject)?.name)} - {selectedProject}</p>
-              <p className="text-[8px] font-black tracking-widest text-rose-500 uppercase">Confidencial - Uso Interno</p>
+              <p className="text-[10px] font-bold uppercase text-text leading-none">PMO Data Analytics</p>
+              <p className="text-[9px] font-bold uppercase text-text-secondary">{selectedProject === "All" ? "Relatório Global" : (projectData.find(p => p.key === selectedProject)?.name)} - {selectedProject}</p>
+              <p className="text-[8px] font-bold tracking-wide text-error uppercase">Confidencial - Uso Interno</p>
             </div>
             <div className="text-right space-y-1">
-              <p className="text-[9px] font-bold text-slate-900 leading-tight">© 2026 Associação Casa Hacker • CNPJ 36.038.079/0001-97</p>
-              <p className="text-[8px] font-medium text-slate-500 leading-tight">R. DR. RENATO PAES DE BARROS, 618 – ITAIM BIBI, SÃO PAULO – SP, 04530-000</p>
+              <p className="text-[9px] font-bold text-text leading-tight">© 2026 Associação Casa Hacker • CNPJ 36.038.079/0001-97</p>
+              <p className="text-[8px] font-medium text-text-secondary leading-tight">R. DR. RENATO PAES DE BARROS, 618 – ITAIM BIBI, SÃO PAULO – SP, 04530-000</p>
             </div>
           </div>
-          <div className="bg-slate-50 p-4 border-l-4 border-slate-900 italic text-[9px] leading-relaxed text-slate-600 font-serif">
+          <div className="bg-bg p-4 border-l-4 border-text text-[9px] leading-relaxed text-text-secondary">
             Este documento só é válido se assinado eletronicamente por pessoa autorizada pela Diretoria Executiva por meio da plataforma de assinatura eletrônica exclusiva da Associação Casa Hacker com Certificado ICP-Brasil da Casa Hacker. A emissão do documento sem assinatura não tem validade.
           </div>
-          <div className="flex justify-between items-center text-[7px] font-black uppercase tracking-widest text-slate-400">
+          <div className="flex justify-between items-center text-[7px] font-bold uppercase tracking-wide text-text-secondary">
             <p>Emitido em {format(new Date(), "dd/MM/yyyy HH:mm")} BRT (GMT -3)</p>
             <p></p>
           </div>

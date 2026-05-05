@@ -196,4 +196,6 @@ O **Score de Completude** é calculado como `campos_preenchidos / total_campos_o
 
 ## Licença
 
-Uso interno — © 2026 Associação Casa Hacker · CNPJ 36.038.079/0001-97
+MIT License — © 2026 Associação Casa Hacker · CNPJ 36.038.079/0001-97
+
+Consulte o arquivo [LICENSE](LICENSE) para os termos completos.

@@ -68,7 +68,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       {open && (
         <ul
           role="listbox"
-          className="absolute z-50 w-full mt-1 bg-card border border-line rounded shadow-lg max-h-52 overflow-y-auto custom-scrollbar"
+          className="absolute z-50 w-full mt-1 bg-card border border-line rounded max-h-52 overflow-y-auto custom-scrollbar"
         >
           {items.map((item) => (
             <li

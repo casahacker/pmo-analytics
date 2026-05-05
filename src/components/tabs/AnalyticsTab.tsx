@@ -37,14 +37,14 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
       {/* Trend Chart */}
       <div className="col-span-8 row-span-2 bento-card p-6">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xs font-bold text-text uppercase tracking-widest italic opacity-70">Tendência: Criadas vs. Concluídas (Semanal)</h3>
+          <h3 className="text-xs font-bold text-text uppercase tracking-widest">Tendência: Criadas vs. Concluídas (Semanal)</h3>
           <div className="flex gap-4">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-success"></span>
+              <span className="w-2 h-2 rounded bg-success"></span>
               <span className="text-[10px] text-text-secondary font-bold uppercase">Resolvidas</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-line"></span>
+              <span className="w-2 h-2 rounded bg-line"></span>
               <span className="text-[10px] text-text-secondary font-bold uppercase">Criadas</span>
             </div>
           </div>
@@ -71,7 +71,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
       {/* Overdue by Project */}
       <div className="col-span-4 row-span-2 bento-card p-6 overflow-hidden flex flex-col">
-        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6 italic opacity-70">Taxas de Atraso por Projeto</h3>
+        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6">Taxas de Atraso por Projeto</h3>
         <div className="flex-grow space-y-4 overflow-y-auto pr-2 custom-scrollbar">
           {overdueDist.slice(0, 10).map((proj) => (
             <div key={proj.key} className="flex items-center justify-between group">
@@ -84,7 +84,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                   "text-[9px] font-mono px-2 py-0.5 rounded font-bold",
                   proj.rate > 30 ? "bg-error/10 text-error" : proj.rate > 10 ? "bg-warning/10 text-warning" : "bg-success/10 text-success"
                 )}>{proj.rate}%</span>
-                <div className={cn("w-1.5 h-1.5 rounded-full", proj.rate > 30 ? "bg-error" : proj.rate > 10 ? "bg-warning" : "bg-success")}></div>
+                <div className={cn("w-1.5 h-1.5 rounded", proj.rate > 30 ? "bg-error" : proj.rate > 10 ? "bg-warning" : "bg-success")}></div>
               </div>
             </div>
           ))}
@@ -93,7 +93,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
       {/* Status Pie */}
       <div className="col-span-4 bento-card p-6">
-        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-4 italic opacity-70">Status do Ciclo de Vida</h3>
+        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-4">Status do Ciclo de Vida</h3>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -110,7 +110,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
       {/* Capacity Bar */}
       <div className="col-span-8 bento-card p-6">
-        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6 italic opacity-70">Distribuição de Capacidade por Projeto</h3>
+        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6">Distribuição de Capacidade por Projeto</h3>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={projectDist.slice(0, 8)}>
@@ -128,7 +128,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
       {/* Data Debt Frequency */}
       <div className="col-span-4 bento-card p-6">
-        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6 italic opacity-70">Frequência de Dívida de Dados</h3>
+        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6">Frequência de Dívida de Dados</h3>
         <div className="h-48 overflow-y-auto custom-scrollbar pr-2">
           <div className="space-y-4">
             {missingFieldsData.map((item) => (
@@ -137,7 +137,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                   <span>{item.name}</span>
                   <span className="text-primary">{item.value} Ocorrências</span>
                 </div>
-                <div className="h-1 bg-line rounded-full overflow-hidden">
+                <div className="h-1 bg-line overflow-hidden">
                   <div className="h-full bg-primary/50" style={{ width: `${Math.min(100, (item.value / Math.max(filteredIssues.length, 1)) * 100)}%` }}></div>
                 </div>
               </div>
@@ -148,7 +148,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
       {/* Workload */}
       <div className="col-span-4 bento-card p-6">
-        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6 italic opacity-70">Top 10 Workload (Por Responsável)</h3>
+        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6">Top 10 Workload (Por Responsável)</h3>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={workloadData} layout="vertical">
@@ -164,14 +164,14 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
       {/* Health Ranking */}
       <div className="col-span-4 bento-card p-6">
-        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6 italic opacity-70">Ranking de Saúde de Dados</h3>
+        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6">Ranking de Saúde de Dados</h3>
         <div className="h-48 overflow-y-auto custom-scrollbar pr-2">
           <div className="space-y-3">
             {healthAssigneeData.map((user) => (
               <div key={user.name} className="flex items-center justify-between">
                 <span className="text-[10px] font-bold text-text-secondary truncate max-w-[120px]">{user.name}</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-16 h-1 bg-line rounded-full overflow-hidden">
+                  <div className="w-16 h-1 bg-line overflow-hidden">
                     <div
                       className={cn("h-full", user.score < 50 ? "bg-error" : user.score < 80 ? "bg-warning" : "bg-success")}
                       style={{ width: `${user.score}%` }}
@@ -187,7 +187,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
       {/* Resolution Time */}
       <div className="col-span-12 bento-card p-6">
-        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6 italic opacity-70">Ciclo de Vida: Tempo Médio de Resolução (Em Dias)</h3>
+        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6">Ciclo de Vida: Tempo Médio de Resolução (Em Dias)</h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={resolutionData}>
@@ -223,7 +223,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           ].map(({ dot, title, text }) => (
             <div key={title} className="space-y-3">
               <h4 className="text-[11px] font-bold text-text uppercase tracking-tight flex items-center gap-2">
-                <span className={`w-1.5 h-1.5 rounded-full ${dot}`}></span>
+                <span className={`w-1.5 h-1.5 rounded ${dot}`}></span>
                 {title}
               </h4>
               <p className="text-[10px] text-text-secondary leading-relaxed">{text}</p>

@@ -27,11 +27,11 @@ export const Pagination: React.FC<PaginationProps> = ({
   return (
     <div className={cn("flex items-center justify-between pt-3 border-t border-line", className)}>
       {totalItems !== undefined && start !== undefined && end !== undefined ? (
-        <span className="text-[11px] text-text-secondary">
+        <span className="text-xs text-text-secondary">
           {start}–{end} de {totalItems}
         </span>
       ) : (
-        <span className="text-[11px] text-text-secondary">Página {page} de {totalPages}</span>
+        <span className="text-xs text-text-secondary">Página {page} de {totalPages}</span>
       )}
       <div className="flex items-center gap-1">
         <button
@@ -59,7 +59,7 @@ export const Pagination: React.FC<PaginationProps> = ({
               onClick={() => onPageChange(p)}
               aria-current={p === page ? "page" : undefined}
               className={cn(
-                "w-7 h-7 rounded text-[11px] font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary",
+                "w-7 h-7 rounded text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-primary",
                 p === page
                   ? "bg-primary text-white border border-primary"
                   : "border border-line text-text-secondary hover:bg-sidebar-active hover:text-text"

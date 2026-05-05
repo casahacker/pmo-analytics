@@ -42,7 +42,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
 }) => {
   return (
     <div className="col-span-12 space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-card p-6 rounded-xl border border-line gap-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-card p-6 rounded border border-line gap-6">
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex flex-col gap-1.5">
             <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">Período de Planejamento</span>
@@ -68,44 +68,44 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
         </div>
         <div className="text-right">
           <p className="text-[10px] text-text-secondary font-bold uppercase mb-1">Total de Itens Planejados</p>
-          <p className="text-2xl font-black text-text leading-none">{planningKPIS.total}</p>
+          <p className="text-2xl font-bold text-text leading-none">{planningKPIS.total}</p>
         </div>
       </div>
 
       {planningKPIS.projectHasAnomalies && (
-        <div className="bg-warning/10 border border-warning/30 rounded-xl p-4 flex gap-4 items-center animate-pulse">
+        <div className="bg-warning/10 border border-warning/30 rounded p-4 flex gap-4 items-center">
           <AlertTriangle className="w-6 h-6 text-warning shrink-0" />
           <div className="flex-1">
-            <p className="text-[11px] font-black uppercase text-warning tracking-wider mb-0.5">Aviso de Integridade de Planejamento</p>
+            <p className="text-xs font-bold uppercase text-warning tracking-wide mb-0.5">Aviso de Integridade de Planejamento</p>
             <p className="text-xs text-text leading-relaxed font-medium">
               Este projeto possui itens sob <span className="font-bold text-warning">diligência (campos obrigatórios ausentes ou atrasos)</span>. Os dados de planejamento acima podem estar imprecisos.
             </p>
           </div>
-          <button onClick={() => setCurrentTab("diligence")} className="bg-warning text-text px-4 py-1.5 rounded text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-colors shrink-0">Ver Diligências</button>
+          <button onClick={() => setCurrentTab("diligence")} className="bg-warning text-text px-4 py-1.5 rounded text-xs font-bold uppercase tracking-wide hover:opacity-90 transition-colors shrink-0">Ver Diligências</button>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bento-card p-6 flex items-center justify-between">
           <div>
-            <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Tarefas (Tasks)</p>
-            <p className="text-2xl font-black text-text">{planningKPIS.tasks}</p>
+            <p className="text-xs text-text-secondary font-bold uppercase tracking-wide mb-1">Tarefas (Tasks)</p>
+            <p className="text-2xl font-bold text-text">{planningKPIS.tasks}</p>
           </div>
-          <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-black italic">T</div>
+          <div className="h-12 w-12 bg-primary/10 rounded flex items-center justify-center text-primary font-bold">T</div>
         </div>
         <div className="bento-card p-6 flex items-center justify-between">
           <div>
-            <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest mb-1">Subtarefas</p>
-            <p className="text-2xl font-black text-text">{planningKPIS.subtasks}</p>
+            <p className="text-xs text-text-secondary font-bold uppercase tracking-wide mb-1">Subtarefas</p>
+            <p className="text-2xl font-bold text-text">{planningKPIS.subtasks}</p>
           </div>
-          <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-black italic">S</div>
+          <div className="h-12 w-12 bg-primary/10 rounded flex items-center justify-center text-primary font-bold">S</div>
         </div>
         <div className="bento-card p-6 flex items-center justify-between">
           <div>
-            <p className="text-[10px] text-error font-bold uppercase tracking-widest mb-1">Itens sob Diligência</p>
-            <p className="text-2xl font-black text-error">{planningKPIS.itemsWithAnomalies}</p>
+            <p className="text-xs text-error font-bold uppercase tracking-wide mb-1">Itens sob Diligência</p>
+            <p className="text-2xl font-bold text-error">{planningKPIS.itemsWithAnomalies}</p>
           </div>
-          <div className="h-12 w-12 bg-error/10 rounded-full flex items-center justify-center">
+          <div className="h-12 w-12 bg-error/10 rounded flex items-center justify-center">
             <ShieldAlert className="w-6 h-6 text-error" />
           </div>
         </div>
@@ -124,7 +124,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-[10px] uppercase text-text-secondary border-b border-line font-bold tracking-widest pb-3">
+                <tr className="text-[10px] uppercase text-text-secondary border-b border-line font-bold tracking-wide pb-3">
                   <th className="pb-3 px-4">Chave</th>
                   <th className="pb-3 px-4">Identificação</th>
                   <th className="pb-3 px-4">Responsável</th>
@@ -143,7 +143,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                       <p className="text-[9px] text-text-secondary uppercase font-bold tracking-tight">{issue.issueType}</p>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sidebar border border-line text-text-secondary italic">{issue.assignee || "Pendente"}</span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sidebar border border-line text-text-secondary">{issue.assignee || "Pendente"}</span>
                     </td>
                     <td className="py-4 px-4 text-center">
                       <span className="font-mono font-bold text-text-secondary">{issue.dueDate ? format(parseISO(issue.dueDate), "dd/MM/yy") : "--"}</span>
@@ -154,9 +154,9 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                     <td className="py-4 px-4 text-center">
                       <div className="flex justify-center">
                         {issue.isDiligence ? (
-                          <div className="w-2 h-2 bg-error rounded-full animate-pulse" title="Issue com inconformidade de dados"></div>
+                          <div className="w-2 h-2 bg-error rounded" title="Issue com inconformidade de dados"></div>
                         ) : (
-                          <div className="w-2 h-2 bg-success/30 rounded-full"></div>
+                          <div className="w-2 h-2 bg-success/30 rounded"></div>
                         )}
                       </div>
                     </td>

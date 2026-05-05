@@ -23,12 +23,12 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "bg-card border border-line rounded-xl p-5 flex flex-col justify-center transition-all hover:border-primary/20",
+        "bg-card border border-line rounded p-5 flex flex-col justify-center transition-all hover:border-primary/20",
         className
       )}
     >
       <div className="flex justify-between items-center mb-1">
-        <span className="text-[10px] text-text-secondary uppercase font-bold tracking-wider">{title}</span>
+        <span className="text-xs text-text-secondary uppercase font-bold tracking-wide">{title}</span>
         <Icon className="w-3.5 h-3.5 text-text-secondary" />
       </div>
       <div className="flex items-baseline gap-2">
@@ -44,13 +44,13 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
       </div>
       {description && (
         <div className="mt-2 flex items-center gap-2">
-           <div className="flex-grow h-1 bg-line rounded-full overflow-hidden">
+           <div className="flex-grow h-1 bg-line overflow-hidden">
               <div
                 className="h-full bg-warning"
                 style={{ width: value.toString().includes('%') ? value.toString() : '50%' }}
               />
            </div>
-           <p className="text-[9px] font-bold text-text-secondary uppercase whitespace-nowrap">{description}</p>
+           <p className="text-xs font-medium text-text-secondary uppercase whitespace-nowrap">{description}</p>
         </div>
       )}
     </motion.div>

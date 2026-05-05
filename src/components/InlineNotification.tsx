@@ -42,11 +42,11 @@ export const InlineNotification: React.FC<InlineNotificationProps> = ({
 }) => {
   const { container, icon, IconComponent } = kindStyles[kind];
   return (
-    <div className={cn("flex items-start gap-3 p-3 rounded-lg", container, className)} role="alert">
+    <div className={cn("flex items-start gap-3 p-3 rounded", container, className)} role="alert">
       <IconComponent className={cn("w-4 h-4 mt-0.5 shrink-0", icon)} />
       <div className="space-y-0.5">
         <p className={cn("text-xs font-bold uppercase tracking-tight", icon)}>{title}</p>
-        {subtitle && <p className="text-[11px] text-text-secondary">{subtitle}</p>}
+        {subtitle && <p className="text-xs text-text-secondary">{subtitle}</p>}
       </div>
     </div>
   );

@@ -66,7 +66,10 @@ export default function App() {
   const globalStats = useMemo(() => {
     const total = normalizedIssues.length;
     if (total === 0) return { avgCompleteness: 0, overdueRate: 0 };
-    const avgComp = normalizedIssues.reduce((acc, i) => acc + i.completenessScore, 0) / total;
+    const scorable = normalizedIssues.filter(i => i.issueType !== "Epic");
+    const avgComp = scorable.length > 0
+      ? scorable.reduce((acc, i) => acc + i.completenessScore, 0) / scorable.length
+      : 0;
     const overdueTotal = normalizedIssues.filter(i => i.isOverdue).length;
     return { avgCompleteness: avgComp, overdueRate: (overdueTotal / total) * 100 };
   }, [normalizedIssues]);
@@ -313,7 +316,7 @@ export default function App() {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center gap-4 bg-bg">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-text-secondary animate-pulse">Iniciando Pipeline de Dados...</p>
+        <p className="text-xs font-bold uppercase tracking-wide text-text-secondary">Iniciando Pipeline de Dados...</p>
       </div>
     );
   }
@@ -344,7 +347,7 @@ export default function App() {
                 referrerPolicy="no-referrer"
               />
               <div className="flex flex-col">
-                <span className="text-xl font-light text-text-secondary uppercase tracking-widest leading-none">PMO Data Analytics</span>
+                <span className="text-xl font-light text-text-secondary uppercase tracking-wide leading-none">PMO Data Analytics</span>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-1.5 h-1.5 bg-[#198038] rounded-full shadow-[0_0_8px_rgba(25,128,56,0.5)]"></div>
                   <span className="text-[10px] font-bold text-text-secondary uppercase tracking-tighter">API REST jira.casahacker.org</span>
@@ -465,7 +468,7 @@ export default function App() {
           </div>
         </div>
 
-        <footer className="px-10 py-10 border-t border-line flex flex-col gap-8 text-[10px] text-text-secondary font-bold uppercase tracking-widest mt-auto">
+        <footer className="px-10 py-10 border-t border-line flex flex-col gap-8 text-[10px] text-text-secondary font-bold uppercase tracking-wide mt-auto">
           <div className="flex justify-between items-center">
             <div className="flex gap-6">
               <span>Python 3.11</span>
@@ -488,16 +491,16 @@ export default function App() {
       {/* Issue Detail Modal */}
       {selectedIssueForDetail && (
         <div role="dialog" aria-modal="true" aria-label="Detalhes da Tarefa" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card border border-line rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-card border border-line rounded w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-line flex justify-between items-start bg-sidebar">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">{selectedIssueForDetail.key}</span>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{selectedIssueForDetail.projectName}</span>
+                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">{selectedIssueForDetail.projectName}</span>
                 </div>
                 <h2 className="text-lg font-bold text-text leading-tight">{selectedIssueForDetail.summary}</h2>
               </div>
-              <button onClick={() => setSelectedIssueForDetail(null)} aria-label="Fechar modal" className="p-2 hover:bg-sidebar-active rounded-full transition-colors text-text-secondary hover:text-text focus:outline-none focus:ring-2 focus:ring-primary">
+              <button onClick={() => setSelectedIssueForDetail(null)} aria-label="Fechar modal" className="p-2 hover:bg-sidebar-active rounded transition-colors text-text-secondary hover:text-text focus:outline-none focus:ring-2 focus:ring-primary">
                 <div className="w-5 h-5 flex items-center justify-center font-bold text-xl">×</div>
               </button>
             </div>
@@ -509,7 +512,7 @@ export default function App() {
                   { label: "Responsável", value: selectedIssueForDetail.assignee || "Não Atribuído" },
                   { label: "Data de Entrega", value: selectedIssueForDetail.dueDate ? format(parseISO(selectedIssueForDetail.dueDate), "dd/MM/yyyy") : "Não definida" },
                 ].map(({ label, value }) => (
-                  <div key={label} className="p-4 bg-sidebar rounded-xl border border-line">
+                  <div key={label} className="p-4 bg-sidebar rounded border border-line">
                     <div className="text-[10px] font-bold text-text-secondary uppercase mb-1">{label}</div>
                     <div className="text-xs font-bold text-text uppercase">{value}</div>
                   </div>
@@ -518,7 +521,7 @@ export default function App() {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-line"></div>
-                  <h3 className="text-xs font-bold text-primary uppercase tracking-[0.2em] italic">Guia de Correção</h3>
+                  <h3 className="text-xs font-bold text-primary uppercase tracking-wide">Guia de Correção</h3>
                   <div className="h-px flex-1 bg-line"></div>
                 </div>
                 <div className="grid grid-cols-1 gap-4">
@@ -578,8 +581,8 @@ export default function App() {
       {/* Documenso Modal */}
       {showDocumensoModal && (
         <div role="dialog" aria-modal="true" aria-label="Assinar Relatório" className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-card border border-line rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-text mb-4 flex items-center gap-2">
+          <div className="bg-card border border-line rounded p-6 w-full max-w-md">
+            <h2 className="text-sm font-bold uppercase tracking-wide text-text mb-4 flex items-center gap-2">
               <PenLine className="w-4 h-4 text-success" /> Assinar Relatório com Documenso
             </h2>
             {!documensoSigningUrl ? (

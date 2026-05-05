@@ -26,7 +26,7 @@
 
 @layer components {
   .bento-card {
-    @apply bg-card border border-line rounded-xl transition-all duration-300 hover:border-primary/20;
+    @apply bg-card border border-line rounded transition-all duration-300 hover:border-primary/20;
   }
 
   .custom-scrollbar::-webkit-scrollbar {

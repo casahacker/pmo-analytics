@@ -47,14 +47,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             className="h-10 w-auto self-start brightness-0 opacity-80"
             referrerPolicy="no-referrer"
           />
-          <p className="text-[10px] font-light text-text-secondary uppercase tracking-[0.2em]">
+          <p className="text-[10px] font-light text-text-secondary uppercase tracking-wide">
             PMO Data Analytics
           </p>
         </div>
       </div>
 
       <nav className="flex-1 space-y-0">
-        <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-text-secondary px-5 pt-4 pb-2">
+        <div className="text-[10px] uppercase tracking-wide font-bold text-text-secondary px-5 pt-4 pb-2">
           Dashboards
         </div>
         {[
@@ -81,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ))}
 
         <div className="mt-6">
-          <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-text-secondary px-5 py-2">
+          <div className="text-[10px] uppercase tracking-wide font-bold text-text-secondary px-5 py-2">
             Filtros Globais
           </div>
 
@@ -127,8 +127,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {isRefreshing ? "Atualizando..." : "Atualizar"}
         </button>
         <div className="mt-3 flex items-center justify-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#198038] shadow-[0_0_8px_rgba(25,128,56,0.7)] animate-pulse"></div>
-          <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">Online</span>
+          <div className="w-1.5 h-1.5 rounded bg-[#198038]"></div>
+          <span className="text-xs font-bold text-text-secondary uppercase tracking-wide">Online</span>
         </div>
       </div>
     </aside>

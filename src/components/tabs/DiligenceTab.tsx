@@ -42,7 +42,7 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
 }) => {
   return (
     <div className="col-span-12 space-y-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-card p-4 rounded-xl border border-line gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-card p-4 rounded border border-line gap-4">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-text-secondary font-bold uppercase whitespace-nowrap">Projeto:</span>
@@ -123,7 +123,7 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
                         <span className={cn("font-mono font-bold", issue.isOverdue ? "text-error" : "text-text-secondary")}>
                           {issue.dueDate ? format(parseISO(issue.dueDate), "dd-MM-yy") : "NULL"}
                         </span>
-                        {issue.isOverdue && <span className="text-[8px] text-error font-black uppercase tracking-tighter">Atrasada</span>}
+                        {issue.isOverdue && <span className="text-[8px] text-error font-bold uppercase tracking-tight">Atrasada</span>}
                       </div>
                     </td>
                     <td className="py-4 px-4 text-center">
