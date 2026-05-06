@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Maximize2, X, TrendingUp } from "lucide-react";
-import { addDays, format, subDays } from "date-fns";
+import { addDays, format, parseISO, subDays } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area, ScatterChart, Scatter, ZAxis,
@@ -440,6 +440,8 @@ interface AnalyticsTabProps {
   funnelData: { name: string; value: number; fill: string }[];
   leadTimeData: { key: string; min: number; q1: number; median: number; q3: number; max: number; count: number }[];
   contributorData: { reporters: string[]; assignees: string[]; matrix: Record<string, Record<string, number>> };
+  cycleTimeData: { date: string; days: number; project: string; key: string }[];
+  agingData: { label: string; min: number; max: number; count: number }[];
 }
 
 // ─── Main component ────────────────────────────────────────────────────────────
@@ -448,7 +450,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
   trendData, overdueDist, statusData, projectDist, missingFieldsData,
   workloadData, healthAssigneeData, resolutionData, filteredIssues,
   sankeyData, calendarData, bubbleData, treemapData, radarData,
-  funnelData, leadTimeData, contributorData,
+  funnelData, leadTimeData, contributorData, cycleTimeData, agingData,
 }) => {
   const [expandedChart, setExpandedChart] = useState<string | null>(null);
   const ec = expandedChart;
@@ -471,7 +473,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#525252" }} />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#525252" }} tickFormatter={(v: string) => { try { return format(parseISO(v), "dd/MM"); } catch { return v; } }} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#525252" }} />
                 <Tooltip content={<ChartTooltip />} />
                 <Area type="monotone" dataKey="completed" name="Resolvidas" stroke="#198038" strokeWidth={2} fillOpacity={1} fill="url(#colRes)" />
@@ -757,6 +759,98 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
             )}
           </div>
         )}
+      </ChartCard>
+
+      {/* Aging Distribution */}
+      <ChartCard id="aging" title="Distribuição de Idade do Backlog" subtitle="Issues em aberto agrupadas por tempo desde a criação" className="col-span-4" expandedChart={ec} onExpand={onExpand}>
+        {(expanded) => {
+          const AGING_COLORS = ["#198038", "#42be65", "#f1c21b", "#ff832b", "#da1e28", "#750e13"];
+          return (
+            <div className={expanded ? "h-full" : "h-64"}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={agingData} margin={{ top: 4, right: 8, left: -20, bottom: 4 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e0e0e0" />
+                  <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#525252" }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: "#525252" }} />
+                  <Tooltip content={<ChartTooltip />} />
+                  {agingData.map((entry, i) => null)}
+                  <Bar dataKey="count" name="Issues em Aberto" radius={[2, 2, 0, 0]} barSize={28}>
+                    {agingData.map((entry, i) => (
+                      <Cell key={i} fill={AGING_COLORS[i % AGING_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        }}
+      </ChartCard>
+
+      {/* Cycle Time Scatterplot */}
+      <ChartCard id="cycletime" title="Cycle Time Scatterplot" subtitle="Cada ponto = uma issue concluída | X = semana de conclusão | Y = dias do início ao fim" className="col-span-8" expandedChart={ec} onExpand={onExpand}>
+        {(expanded) => {
+          const projectKeys = Array.from(new Set(cycleTimeData.map(d => d.project)));
+          const meanDays = cycleTimeData.length
+            ? Math.round(cycleTimeData.reduce((s, d) => s + d.days, 0) / cycleTimeData.length)
+            : 0;
+          return (
+            <div className={expanded ? "h-full" : "h-64"}>
+              {cycleTimeData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <ScatterChart margin={{ top: 4, right: 16, left: -20, bottom: 24 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                    <XAxis
+                      dataKey="date"
+                      type="category"
+                      allowDuplicatedCategory={false}
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 8, fill: "#525252" }}
+                      tickFormatter={(v: string) => { try { return format(parseISO(v), "dd/MM"); } catch { return v; } }}
+                      label={{ value: "Semana de conclusão", position: "insideBottom", offset: -16, fontSize: 9, fill: "#525252" }}
+                    />
+                    <YAxis
+                      dataKey="days"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 9, fill: "#525252" }}
+                      label={{ value: "Dias", angle: -90, position: "insideLeft", offset: 12, fontSize: 9, fill: "#525252" }}
+                    />
+                    <ZAxis range={[20, 20]} />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        const d = payload[0]?.payload;
+                        return (
+                          <div className="bg-card border border-line rounded p-3 text-xs shadow">
+                            <p className="font-bold text-text mb-1">{d.key}</p>
+                            <p className="text-text-secondary">Cycle time: <span className="text-primary font-bold">{d.days}d</span></p>
+                            <p className="text-text-secondary">Semana: <span className="text-text font-bold">{(() => { try { return format(parseISO(d.date), "dd/MM/yyyy"); } catch { return d.date; } })()}</span></p>
+                            <p className="text-text-secondary">Projeto: <span className="text-text font-bold">{d.project}</span></p>
+                          </div>
+                        );
+                      }}
+                    />
+                    {projectKeys.map((pk, i) => (
+                      <Scatter
+                        key={pk}
+                        name={pk}
+                        data={cycleTimeData.filter(d => d.project === pk)}
+                        fill={COLORS[i % COLORS.length]}
+                        fillOpacity={0.7}
+                      />
+                    ))}
+                  </ScatterChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-text-secondary text-xs">Sem issues concluídas no filtro ativo</div>
+              )}
+              {cycleTimeData.length > 0 && (
+                <p className="text-[9px] text-text-secondary mt-1">Média: <span className="font-bold text-primary">{meanDays}d</span> · {cycleTimeData.length} issues concluídas</p>
+              )}
+            </div>
+          );
+        }}
       </ChartCard>
 
       {/* ── G: Dicionário ─────────────────────────────────────────────────── */}

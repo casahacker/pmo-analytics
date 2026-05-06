@@ -17,17 +17,27 @@ interface ChartTooltipProps {
 }
 
 function formatLabel(label: string): string {
+  if (!label) return "";
+  // "2026-03-17" → "17/03/2026" (ISO date)
+  const dateMatch = label.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateMatch) {
+    try {
+      const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+      const m = parseInt(dateMatch[2], 10) - 1;
+      return `Semana de ${dateMatch[3]}/${dateMatch[2]} — ${months[m]} ${dateMatch[1]}`;
+    } catch { return label; }
+  }
   // "2026-03" → "Mar 2026"
-  const monthMatch = label?.match(/^(\d{4})-(\d{2})$/);
+  const monthMatch = label.match(/^(\d{4})-(\d{2})$/);
   if (monthMatch) {
     const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
     const month = parseInt(monthMatch[2], 10) - 1;
     return `${months[month]} ${monthMatch[1]}`;
   }
   // "2026-W12" → "Semana 12/2026"
-  const weekMatch = label?.match(/^(\d{4})-W(\d{2})$/);
+  const weekMatch = label.match(/^(\d{4})-W(\d{2})$/);
   if (weekMatch) return `Semana ${weekMatch[2]}/${weekMatch[1]}`;
-  return label ?? "";
+  return label;
 }
 
 function formatValue(value: number | string): string {

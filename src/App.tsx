@@ -33,7 +33,9 @@ import {
   getRadarHealthData,
   getFunnelData,
   getLeadTimeDistribution,
-  getContributorMatrix
+  getContributorMatrix,
+  getCycleTimeScatter,
+  getAgingDistribution,
 } from "./lib/analytics";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { cn } from "./lib/utils";
@@ -206,6 +208,8 @@ export default function App() {
   const funnelData = useMemo(() => getFunnelData(filteredIssues), [filteredIssues]);
   const leadTimeData = useMemo(() => getLeadTimeDistribution(filteredIssues), [filteredIssues]);
   const contributorData = useMemo(() => getContributorMatrix(filteredIssues), [filteredIssues]);
+  const cycleTimeData = useMemo(() => getCycleTimeScatter(filteredIssues), [filteredIssues]);
+  const agingData = useMemo(() => getAgingDistribution(filteredIssues), [filteredIssues]);
 
   const planningIssues = useMemo(() => {
     return filteredIssues.filter(issue => {
@@ -431,6 +435,8 @@ export default function App() {
                 funnelData={funnelData}
                 leadTimeData={leadTimeData}
                 contributorData={contributorData}
+                cycleTimeData={cycleTimeData}
+                agingData={agingData}
               />
             ) : currentTab === "notifications" ? (
               <NotificationsTab

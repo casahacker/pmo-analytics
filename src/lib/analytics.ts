@@ -1,5 +1,5 @@
 import { NormalizedIssue } from "./dataProcessor";
-import { format, parseISO, startOfWeek, startOfMonth, startOfDay, differenceInDays } from "date-fns";
+import { format, parseISO, startOfWeek, startOfMonth, startOfDay, differenceInDays, endOfWeek } from "date-fns";
 
 export function getKPISummary(issues: NormalizedIssue[]) {
   const total = issues.length;
@@ -399,4 +399,51 @@ export function getContributorMatrix(issues: NormalizedIssue[]) {
     .slice(0, 8);
 
   return { reporters, assignees, matrix };
+}
+
+export function getCycleTimeScatter(issues: NormalizedIssue[]) {
+  const now = new Date();
+  return issues
+    .filter(i => i.statusCategory === "done" && i.issueType !== "Epic")
+    .flatMap(i => {
+      const startStr = i.dateStart || i.created;
+      const endStr = i.resolvedAt || i.updated;
+      if (!startStr || !endStr) return [];
+      try {
+        const start = parseISO(startStr);
+        const end = parseISO(endStr);
+        const days = differenceInDays(end, start);
+        if (days < 0 || days > 365 || end > now) return [];
+        return [{
+          date: format(startOfWeek(end, { weekStartsOn: 1 }), "yyyy-MM-dd"),
+          days,
+          project: i.projectKey,
+          key: i.key,
+        }];
+      } catch { return []; }
+    })
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function getAgingDistribution(issues: NormalizedIssue[]) {
+  const now = new Date();
+  const BUCKETS = [
+    { label: "0–7d", min: 0, max: 7 },
+    { label: "8–15d", min: 8, max: 15 },
+    { label: "16–30d", min: 16, max: 30 },
+    { label: "31–60d", min: 31, max: 60 },
+    { label: "61–90d", min: 61, max: 90 },
+    { label: ">90d", min: 91, max: Infinity },
+  ];
+  const counts = BUCKETS.map(b => ({ ...b, count: 0 }));
+  issues
+    .filter(i => i.statusCategory !== "done")
+    .forEach(i => {
+      try {
+        const age = differenceInDays(now, parseISO(i.created));
+        const bucket = counts.find(b => age >= b.min && age <= b.max);
+        if (bucket) bucket.count++;
+      } catch { /* skip */ }
+    });
+  return counts;
 }
