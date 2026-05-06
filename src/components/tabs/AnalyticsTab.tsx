@@ -87,85 +87,94 @@ const SectionLabel: React.FC<{ label: string }> = ({ label }) => (
   </div>
 );
 
-// ─── Calendar Heatmap ─────────────────────────────────────────────────────────
+// ─── Calendar Heatmap (SVG) ───────────────────────────────────────────────────
 
 const CalendarHeatmap: React.FC<{ data: Record<string, number> }> = ({ data }) => {
   const today = new Date();
-  const maxVal = Math.max(1, ...Object.values(data));
+  const vals = Object.values(data);
+  const maxVal = vals.length > 0 ? Math.max(1, ...vals) : 1;
 
-  // align back to last Sunday
+  const CELL = 14;
+  const GAP = 3;
+  const COL = CELL + GAP;
+  const ROW = CELL + GAP;
+  const LEFT = 30;
+  const TOP = 22;
+  const MONTHS = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+  // align to Sunday
   let start = subDays(today, 364);
   while (start.getDay() !== 0) start = subDays(start, 1);
 
-  const weeks: { date: string; count: number }[][] = [];
+  const weeks: { date: string; count: number; row: number }[][] = [];
   let cur = new Date(start);
-  for (let w = 0; w < 54; w++) {
-    if (cur > today) break;
-    const week: { date: string; count: number }[] = [];
+  while (cur <= today) {
+    const week: { date: string; count: number; row: number }[] = [];
     for (let d = 0; d < 7; d++) {
+      if (cur > today) break;
       const dateStr = format(cur, "yyyy-MM-dd");
-      week.push({ date: dateStr, count: cur > today ? -1 : (data[dateStr] || 0) });
+      week.push({ date: dateStr, count: data[dateStr] || 0, row: d });
       cur = addDays(cur, 1);
     }
-    weeks.push(week);
+    if (week.length > 0) weeks.push(week);
   }
 
-  const getColor = (count: number) => {
-    if (count < 0) return "bg-transparent";
-    if (count === 0) return "bg-line";
+  const getColor = (count: number): string => {
+    if (count === 0) return "#e0e0e0";
     const pct = count / maxVal;
-    if (pct < 0.2) return "bg-primary/20";
-    if (pct < 0.4) return "bg-primary/40";
-    if (pct < 0.65) return "bg-primary/65";
-    if (pct < 0.85) return "bg-primary/80";
-    return "bg-primary";
+    if (pct < 0.15) return "#bfdbfe";
+    if (pct < 0.35) return "#93c5fd";
+    if (pct < 0.6)  return "#3b82f6";
+    if (pct < 0.82) return "#1d4ed8";
+    return "#0f62fe";
   };
 
-  const months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  const days = ["D", "S", "T", "Q", "Q", "S", "S"];
+  // month label positions — show at first week of each month
+  const monthLabels: { label: string; x: number }[] = [];
+  let lastMonth = -1;
+  weeks.forEach((week, wi) => {
+    const d = new Date(week[0].date);
+    const m = d.getMonth();
+    if (m !== lastMonth) {
+      monthLabels.push({ label: MONTHS[m], x: LEFT + wi * COL });
+      lastMonth = m;
+    }
+  });
+
+  const W = LEFT + weeks.length * COL + 4;
+  const H = TOP + 7 * ROW + 28;
+
+  const LEGEND_COLORS = ["#e0e0e0", "#bfdbfe", "#93c5fd", "#3b82f6", "#1d4ed8", "#0f62fe"];
 
   return (
-    <div className="overflow-x-auto custom-scrollbar pb-2">
-      <div className="flex gap-1 items-start min-w-max">
-        <div className="flex flex-col gap-0.5 mr-1 pt-5">
-          {days.map((d, i) => (
-            <div key={i} className="h-3 w-3 flex items-center justify-center text-[8px] text-text-secondary font-bold">{i % 2 === 1 ? d : ""}</div>
-          ))}
-        </div>
-        <div className="flex flex-col gap-1">
-          <div className="flex gap-0.5">
-            {weeks.map((week, wi) => {
-              const firstDay = new Date(week[0].date);
-              const isFirstOfMonth = firstDay.getDate() <= 7;
-              return (
-                <div key={wi} className="w-3 text-[8px] text-text-secondary font-bold truncate">
-                  {isFirstOfMonth ? months[firstDay.getMonth()] : ""}
-                </div>
-              );
-            })}
-          </div>
-          <div className="flex gap-0.5">
-            {weeks.map((week, wi) => (
-              <div key={wi} className="flex flex-col gap-0.5">
-                {week.map((day, di) => (
-                  <div
-                    key={di}
-                    title={day.count >= 0 ? `${day.date}: ${day.count} atividades` : undefined}
-                    className={cn("w-3 h-3 rounded-sm", getColor(day.count))}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-1.5 mt-3 text-[9px] text-text-secondary font-bold">
-        <span>Menos</span>
-        {[0, 0.2, 0.4, 0.65, 0.85, 1].map((pct, i) => (
-          <div key={i} className={cn("w-3 h-3 rounded-sm", getColor(Math.round(pct * maxVal)))} />
+    <div className="overflow-x-auto custom-scrollbar">
+      <svg width={W} height={H} style={{ display: "block", fontFamily: "IBM Plex Sans, sans-serif" }}>
+        {/* Month labels */}
+        {monthLabels.map(({ label, x }, i) => (
+          <text key={i} x={x} y={TOP - 7} fontSize={10} fill="#525252" fontWeight="600">{label}</text>
         ))}
-        <span>Mais</span>
-      </div>
+
+        {/* Day labels: Mon, Wed, Fri */}
+        {[{ label: "Seg", row: 1 }, { label: "Qua", row: 3 }, { label: "Sex", row: 5 }].map(({ label, row }) => (
+          <text key={label} x={LEFT - 4} y={TOP + row * ROW + CELL / 2} fontSize={9} fill="#8d8d8d" textAnchor="end" dominantBaseline="middle">{label}</text>
+        ))}
+
+        {/* Cells */}
+        {weeks.map((week, wi) =>
+          week.map((day) => (
+            <rect key={day.date} x={LEFT + wi * COL} y={TOP + day.row * ROW} width={CELL} height={CELL} rx={2} fill={getColor(day.count)}>
+              <title>{format(new Date(day.date + "T12:00:00"), "dd/MM/yyyy")}: {day.count} atividades</title>
+            </rect>
+          ))
+        )}
+
+        {/* Legend */}
+        <text x={LEFT} y={H - 6} fontSize={9} fill="#8d8d8d" textAnchor="end" dx={-4}>Menos</text>
+        {LEGEND_COLORS.map((color, i) => (
+          <rect key={i} x={LEFT + i * (CELL + 2)} y={H - CELL - 4} width={CELL} height={CELL} rx={2} fill={color} />
+        ))}
+        <text x={LEFT + LEGEND_COLORS.length * (CELL + 2) + 2} y={H - 6} fontSize={9} fill="#8d8d8d">Mais</text>
+      </svg>
     </div>
   );
 };
@@ -319,17 +328,22 @@ const ContributorMatrixChart: React.FC<{
 const TreemapCell = (props: any) => {
   const { x, y, width, height, name, value, overdue } = props;
   if (!width || !height || width < 2 || height < 2) return null;
-  const riskRate = overdue / Math.max(1, value);
+  const riskRate = (overdue ?? 0) / Math.max(1, value);
   const fill = riskRate > 0.3 ? "#da1e28" : riskRate > 0.1 ? "#f1c21b" : "#198038";
+  const showText = width > 48 && height > 26;
+  const showCount = width > 48 && height > 46;
   return (
     <g>
-      <rect x={x} y={y} width={width} height={height} style={{ fill, fillOpacity: 0.15, stroke: "#ffffff", strokeWidth: 2 }} />
-      {width > 40 && height > 24 && (
-        <text x={x + width / 2} y={y + height / 2 - (height > 40 ? 6 : 0)} textAnchor="middle" dominantBaseline="middle" fontSize={10} fontWeight="bold" fill="#161616">
-          {name}
-        </text>
+      <rect x={x} y={y} width={width} height={height} fill={fill} fillOpacity={0.35} stroke="#ffffff" strokeWidth={2} />
+      {showText && (
+        <>
+          <rect x={x + 4} y={y + height / 2 - (showCount ? 18 : 10)} width={width - 8} height={showCount ? 28 : 18} fill="white" fillOpacity={0.55} rx={2} />
+          <text x={x + width / 2} y={y + height / 2 - (showCount ? 6 : 0)} textAnchor="middle" dominantBaseline="middle" fontSize={10} fontWeight="bold" fill="#161616">
+            {name}
+          </text>
+        </>
       )}
-      {width > 40 && height > 40 && (
+      {showCount && (
         <text x={x + width / 2} y={y + height / 2 + 10} textAnchor="middle" dominantBaseline="middle" fontSize={9} fill="#525252">
           {value}
         </text>
@@ -514,24 +528,18 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
         {(expanded) => (
           <div className={expanded ? "h-full" : "h-72"}>
             <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
+              <ScatterChart margin={{ top: 20, right: 30, bottom: 30, left: 50 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                <XAxis type="number" dataKey="x" name="Taxa de Atraso" unit="%" domain={[0, 100]} tick={{ fontSize: 9, fill: "#525252" }} axisLine={false} tickLine={false} label={{ value: "Atraso %", position: "insideBottom", offset: -4, fontSize: 9, fill: "#525252" }} />
-                <YAxis type="number" dataKey="y" name="Completude" unit="%" domain={[0, 100]} tick={{ fontSize: 9, fill: "#525252" }} axisLine={false} tickLine={false} label={{ value: "Completude %", angle: -90, position: "insideLeft", fontSize: 9, fill: "#525252" }} />
-                <ZAxis type="number" dataKey="z" range={[30, 500]} name="Volume" />
+                <XAxis type="number" dataKey="x" name="Taxa de Atraso" unit="%" domain={[0, 100]} tick={{ fontSize: 9, fill: "#525252" }} axisLine={false} tickLine={false} label={{ value: "Taxa de Atraso (%)  —  Risco aumenta →", position: "insideBottom", offset: -16, fontSize: 9, fill: "#525252" }} />
+                <YAxis type="number" dataKey="y" name="Completude" unit="%" domain={[0, 100]} tick={{ fontSize: 9, fill: "#525252" }} axisLine={false} tickLine={false} label={{ value: "Completude (%)", angle: -90, position: "insideLeft", offset: 10, fontSize: 9, fill: "#525252" }} />
+                <ZAxis type="number" dataKey="z" range={[300, 3000]} name="Volume" />
                 <Tooltip content={<BubbleTooltip />} cursor={{ strokeDasharray: "3 3" }} />
-                <Scatter
-                  data={bubbleData}
-                  fill="#0f62fe"
-                  fillOpacity={0.6}
-                  shape={(props: any) => {
-                    const { cx, cy, r } = props;
-                    const payload = props.payload;
-                    const risk = payload?.x ?? 0;
-                    const fill = risk > 30 ? "#da1e28" : risk > 10 ? "#f1c21b" : "#198038";
-                    return <circle cx={cx} cy={cy} r={r} fill={fill} fillOpacity={0.55} stroke={fill} strokeWidth={1} />;
-                  }}
-                />
+                <Scatter data={bubbleData} fillOpacity={0.55}>
+                  {bubbleData.map((entry, i) => {
+                    const fill = entry.x > 30 ? "#da1e28" : entry.x > 10 ? "#f1c21b" : "#198038";
+                    return <Cell key={i} fill={fill} stroke={fill} strokeWidth={1.5} />;
+                  })}
+                </Scatter>
               </ScatterChart>
             </ResponsiveContainer>
           </div>
