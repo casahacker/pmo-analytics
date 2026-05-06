@@ -9,6 +9,9 @@ import { createRequire } from "module";
 const FileStore = createRequire(import.meta.url)("session-file-store");
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import { z } from "zod";
 
 dotenv.config();
 
@@ -79,7 +82,7 @@ async function fetchJiraIssues(projectKey: string) {
     cache.set(cacheKey, issues);
     return issues;
   } catch (error: any) {
-    console.error(`[Jira] Erro ao buscar ${projectKey}:`, error.response?.data || error.message);
+    console.error(`[Jira] Erro ao buscar ${projectKey}: status=${error.response?.status} msg=${error.message}`);
     return [];
   }
 }
@@ -87,17 +90,35 @@ async function fetchJiraIssues(projectKey: string) {
 // Nginx proxy
 app.set("trust proxy", 1);
 
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
 // Session
 const SessionFileStore = FileStore(session);
 app.use(session({
   store: new SessionFileStore({ path: "/app/data/sessions", ttl: 28800, reapInterval: 3600 }),
-  secret: process.env.SESSION_SECRET || "changeme-set-SESSION_SECRET",
+  secret: (() => {
+    const s = process.env.SESSION_SECRET;
+    if (!s) throw new Error("SESSION_SECRET environment variable is not set");
+    return s;
+  })(),
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: true,
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
     maxAge: 8 * 60 * 60 * 1000, // 8h
   },
 }));
@@ -203,6 +224,9 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 
 app.use(express.json({ limit: "10mb" }));
 
+const apiLimiter = rateLimit({ windowMs: 60_000, max: 60, standardHeaders: true, legacyHeaders: false });
+app.use("/api/", apiLimiter);
+
 // API Routes
 app.get("/api/projects", async (_req, res) => {
   res.json(TARGET_PROJECTS);
@@ -222,8 +246,19 @@ app.post("/api/refresh", (_req, res) => {
   res.json({ message: "Cache cleared" });
 });
 
+const signSchema = z.object({
+  pdfBase64: z.string().max(28_000_000, "PDF too large"),
+  title: z.string().min(1).max(200),
+  signatoryName: z.string().min(1).max(200),
+  signatoryEmail: z.string().email(),
+});
+
 app.post("/api/documenso/sign", async (req, res) => {
-  const { pdfBase64, title, signatoryName, signatoryEmail } = req.body;
+  const parsed = signSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "Dados inválidos.", detail: parsed.error.flatten() });
+  }
+  const { pdfBase64, title, signatoryName, signatoryEmail } = parsed.data;
   if (!DOCUMENSO_API_KEY) {
     return res.status(503).json({ error: "DOCUMENSO_API_KEY não configurada." });
   }
@@ -273,9 +308,8 @@ app.post("/api/documenso/sign", async (req, res) => {
 
     res.json({ signingUrl });
   } catch (err: any) {
-    const detail = err.response?.data || err.message;
-    console.error("[Documenso] Erro:", detail);
-    res.status(500).json({ error: "Falha ao criar envelope no Documenso.", detail });
+    console.error(`[Documenso] Erro: status=${err.response?.status} msg=${err.message}`);
+    res.status(err.response?.status ?? 500).json({ error: "Falha ao criar envelope no Documenso." });
   }
 });
 
