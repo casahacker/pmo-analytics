@@ -186,7 +186,11 @@ export default function App() {
 
   const pdfPendingIssues = useMemo(() =>
     reportIssues.filter(i => i.statusCategory !== "done").map(i => ({
-      key: i.key, summary: i.summary, bottleneckReason: getBottleneckReason(i) ?? "Aguardando Alocação"
+      key: i.key,
+      summary: i.summary,
+      bottleneckReason: getBottleneckReason(i) ?? "Aguardando Alocação",
+      assignee:   i.assignee   ?? undefined,
+      sprintName: i.sprintName ?? undefined,
     })),
     [reportIssues]
   );
