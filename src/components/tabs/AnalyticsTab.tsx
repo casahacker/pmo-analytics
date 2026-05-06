@@ -325,28 +325,61 @@ const ContributorMatrixChart: React.FC<{
 
 // ─── Treemap Cell ─────────────────────────────────────────────────────────────
 
+// IBM Blue intensity scale by volume rank (light → dark)
+const TREEMAP_BLUES = ["#d0e2ff", "#a6c8ff", "#78a9ff", "#4589ff", "#0f62fe", "#0043ce"];
+
 const TreemapCell = (props: any) => {
-  const { x, y, width, height, name, value, overdue } = props;
+  const { x, y, width, height, name, value, overdue, maxValue } = props;
   if (!width || !height || width < 2 || height < 2) return null;
+
+  // Color intensity: normalize volume to one of 6 shades
+  const ratio = value / Math.max(1, maxValue ?? value);
+  const colorIdx = Math.min(5, Math.floor(ratio * 6));
+  const fill = TREEMAP_BLUES[colorIdx];
+
+  // Adapt text color to background lightness
+  const textColor = colorIdx >= 3 ? "#ffffff" : "#161616";
+  const subColor = colorIdx >= 3 ? "rgba(255,255,255,0.72)" : "#525252";
+
+  // Risk dot
   const riskRate = (overdue ?? 0) / Math.max(1, value);
-  const fill = riskRate > 0.3 ? "#da1e28" : riskRate > 0.1 ? "#f1c21b" : "#198038";
-  const showText = width > 48 && height > 26;
-  const showCount = width > 48 && height > 46;
+  const riskFill = riskRate > 0.3 ? "#da1e28" : riskRate > 0.1 ? "#f1c21b" : "#42be65";
+
+  const showText = width > 40 && height > 22;
+  const showCount = width > 40 && height > 44;
+  const showRisk = width > 52 && height > 28;
+  const fontSize = Math.min(12, Math.max(9, Math.floor(width / 7)));
+
   return (
     <g>
-      <rect x={x} y={y} width={width} height={height} fill={fill} fillOpacity={0.35} stroke="#ffffff" strokeWidth={2} />
+      <rect x={x} y={y} width={width} height={height} fill={fill} stroke="#ffffff" strokeWidth={2} rx={0} />
       {showText && (
-        <>
-          <rect x={x + 4} y={y + height / 2 - (showCount ? 18 : 10)} width={width - 8} height={showCount ? 28 : 18} fill="white" fillOpacity={0.55} rx={2} />
-          <text x={x + width / 2} y={y + height / 2 - (showCount ? 6 : 0)} textAnchor="middle" dominantBaseline="middle" fontSize={10} fontWeight="bold" fill="#161616">
-            {name}
-          </text>
-        </>
+        <text
+          x={x + width / 2}
+          y={y + height / 2 - (showCount ? 7 : 0)}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize={fontSize}
+          fontWeight="600"
+          fill={textColor}
+        >
+          {name}
+        </text>
       )}
       {showCount && (
-        <text x={x + width / 2} y={y + height / 2 + 10} textAnchor="middle" dominantBaseline="middle" fontSize={9} fill="#525252">
-          {value}
+        <text
+          x={x + width / 2}
+          y={y + height / 2 + 9}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize={9}
+          fill={subColor}
+        >
+          {value} issues
         </text>
+      )}
+      {showRisk && (
+        <circle cx={x + width - 9} cy={y + 9} r={5} fill={riskFill} stroke="#ffffff" strokeWidth={1.5} />
       )}
     </g>
   );
@@ -546,24 +579,27 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
         )}
       </ChartCard>
 
-      <ChartCard id="treemap" title="Volume por Projeto (Treemap)" subtitle="Tamanho = volume de issues | cor = risco de atraso (verde / amarelo / vermelho)" className="col-span-6" expandedChart={ec} onExpand={onExpand}>
-        {(expanded) => (
-          <div className={expanded ? "h-full" : "h-72"}>
-            {treemapData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <Treemap
-                  data={treemapData}
-                  dataKey="value"
-                  aspectRatio={4 / 3}
-                  stroke="#ffffff"
-                  content={<TreemapCell />}
-                />
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full text-text-secondary text-xs">Sem dados</div>
-            )}
-          </div>
-        )}
+      <ChartCard id="treemap" title="Volume por Projeto (Treemap)" subtitle="Área = nº de issues | intensidade = volume relativo | ponto = risco de atraso" className="col-span-6" expandedChart={ec} onExpand={onExpand}>
+        {(expanded) => {
+          const maxTreemapValue = treemapData.length ? Math.max(...treemapData.map(d => d.value)) : 1;
+          return (
+            <div className={expanded ? "h-full" : "h-72"}>
+              {treemapData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <Treemap
+                    data={treemapData}
+                    dataKey="value"
+                    aspectRatio={4 / 3}
+                    stroke="#ffffff"
+                    content={(props: any) => <TreemapCell {...props} maxValue={maxTreemapValue} />}
+                  />
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-text-secondary text-xs">Sem dados</div>
+              )}
+            </div>
+          );
+        }}
       </ChartCard>
 
       <ChartCard id="capacity" title="Distribuição de Capacidade por Projeto" subtitle="Issues por estado — To Do / Em Andamento / Concluído" className="col-span-12" expandedChart={ec} onExpand={onExpand}>
@@ -738,7 +774,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           {[
             {
               dot: "bg-success", title: "Volume de Demandas",
-              text: <><span className="text-text">O que mede:</span> Quantidade absoluta de issues no filtro ativo.<br /><span className="text-text">Lógica:</span> <code>count(issues) GROUP BY projectKey</code>. Visualizado no Treemap onde área = volume e cor = nível de risco de atraso (verde/amarelo/vermelho).</>
+              text: <><span className="text-text">O que mede:</span> Quantidade absoluta de issues no filtro ativo.<br /><span className="text-text">Lógica:</span> <code>count(issues) GROUP BY projectKey</code>. Visualizado no Treemap onde área = volume, intensidade de azul = volume relativo ao maior projeto e ponto colorido = risco de atraso (verde/amarelo/vermelho).</>
             },
             {
               dot: "bg-error", title: "Pendências Temporais (Overdue)",

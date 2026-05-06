@@ -382,7 +382,7 @@ export default function App() {
           </div>
           <div className="flex flex-col items-end">
             <span className="text-[10px] text-text-secondary uppercase font-semibold">Filtro Ativo</span>
-            <span className="text-xs text-text font-medium">{selectedProject === "All" ? "Em 10 Projetos" : selectedProject}</span>
+            <span className="text-xs text-text font-medium">{selectedProject === "All" ? `Em ${projectData.length} Projetos` : selectedProject}</span>
           </div>
         </header>
 

@@ -4,8 +4,9 @@
   <p>Dashboard de BI e governança de dados para o Escritório de Projetos da Casa Hacker.</p>
 
   ![React](https://img.shields.io/badge/React-19-61dafb?style=flat-square&logo=react)
-  ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178c6?style=flat-square&logo=typescript)
   ![Tailwind](https://img.shields.io/badge/Tailwind-v4-06b6d4?style=flat-square&logo=tailwindcss)
+  ![Recharts](https://img.shields.io/badge/Recharts-3.8-22b5bf?style=flat-square)
   ![Podman](https://img.shields.io/badge/Podman-container-892ca0?style=flat-square&logo=podman)
 </div>
 
@@ -17,11 +18,13 @@ O **PMO Data Analytics** consome a API REST do Jira (`jira.casahacker.org`) em t
 
 | Tab | Função |
 |-----|--------|
-| **Analytics** | Tendências, distribuição de status, carga por responsável, tempo de resolução |
-| **Planejamento** | Cronograma mensal filtrado por due date, alertas de diligência |
-| **Diligência** | Protocolo crítico: issues com campos obrigatórios ausentes ou em atraso |
+| **Analytics** | 12+ visualizações: tendências, fluxo Sankey, heatmap de atividade, risco por bubble chart, treemap de volume, radar de saúde, funil de ciclo de vida, distribuição de lead time, matriz de colaboração e mais |
+| **Planejamento** | Cronograma mensal filtrado por due date, alertas de diligência e score de completude por projeto |
+| **Diligência** | Protocolo crítico: issues com campos obrigatórios ausentes ou em atraso, ordenáveis e exportáveis |
 | **Relatórios** | Relatório de execução mensal em PDF com parecer PMO e assinatura Documenso |
 | **Notificações** | Documento formal e preview de e-mail de diligência por projeto |
+
+Todos os gráficos suportam **expansão em tela cheia** via botão dedicado em cada card.
 
 O engine de auditoria calcula um **Score de Completude** para cada issue com base na presença dos campos: Responsável, Data de Entrega, Sprint, Prioridade, Data de Início, Link do Epic e Descrição.
 
@@ -29,10 +32,10 @@ O engine de auditoria calcula um **Score de Completude** para cada issue com bas
 
 ## Stack
 
-- **Runtime:** Node.js 22 + Vite 6 (build) / `tsx` (servidor)
-- **UI:** React 19 + TypeScript 5
+- **Runtime:** Node.js 22 + Vite 6.2 (build) / `tsx` (servidor)
+- **UI:** React 19 + TypeScript 5.8
 - **Estilo:** Tailwind CSS v4 — IBM Carbon Design System (IBM Plex Sans/Mono, paleta `#0f62fe`)
-- **Gráficos:** Recharts
+- **Gráficos:** Recharts 3.8 + SVG customizado (Sankey, Calendar Heatmap, Contributor Matrix)
 - **PDF:** `@react-pdf/renderer`
 - **Auth:** Google OAuth 2.0 via `passport-google-oauth20`
 - **Cache:** `node-cache` (TTL 20 min por projeto)
@@ -132,7 +135,7 @@ pmo-analytics/
 │   │   ├── DataTable.tsx          # Tabela genérica e ordenável
 │   │   ├── RelatorioPDF.tsx       # Template PDF (@react-pdf/renderer)
 │   │   └── tabs/
-│   │       ├── AnalyticsTab.tsx
+│   │       ├── AnalyticsTab.tsx   # 12+ gráficos com expand em tela cheia
 │   │       ├── PlanningTab.tsx
 │   │       ├── DiligenceTab.tsx
 │   │       ├── ReportsTab.tsx
