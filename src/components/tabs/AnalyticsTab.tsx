@@ -147,8 +147,8 @@ const CalendarHeatmap: React.FC<{ data: Record<string, number> }> = ({ data }) =
   const LEGEND_COLORS = ["#e0e0e0", "#bfdbfe", "#93c5fd", "#3b82f6", "#1d4ed8", "#0f62fe"];
 
   return (
-    <div className="overflow-x-auto custom-scrollbar">
-      <svg width={W} height={H} style={{ display: "block", fontFamily: "IBM Plex Sans, sans-serif" }}>
+    <div className="overflow-x-auto custom-scrollbar" style={{ overflowX: "auto" }}>
+      <svg width={W} height={H} overflow="visible" style={{ display: "block", minWidth: W, fontFamily: "IBM Plex Sans, sans-serif" }}>
         {/* Month labels */}
         {monthLabels.map(({ label, x }, i) => (
           <text key={i} x={x} y={TOP - 7} fontSize={10} fill="#525252" fontWeight="600">{label}</text>
