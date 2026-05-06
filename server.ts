@@ -195,7 +195,7 @@ app.get("/auth/logout", (req, res) => {
 
 // Auth guard — protege tudo exceto /auth/* e /login
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (req.path.startsWith("/auth/") || req.path === "/login") return next();
+  if (req.path.startsWith("/auth/") || req.path === "/login" || req.path.startsWith("/fonts/")) return next();
   if (req.isAuthenticated()) return next();
   if (req.path.startsWith("/api/")) return res.status(401).json({ error: "Não autenticado" });
   return res.redirect("/auth/google");

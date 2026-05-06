@@ -210,12 +210,12 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
           <div>
             <div className="flex items-center gap-4 mb-4">
               <img
-                src="/logo-casahacker.svg"
+                src="https://casahacker.org/wp-content/uploads/2023/07/logo_vertical-branco.svg"
                 alt="Casa Hacker"
-                className="h-8 w-auto"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                className="h-8 w-auto brightness-0 opacity-80"
+                referrerPolicy="no-referrer"
               />
-              <div className="w-4 h-8 bg-primary flex-shrink-0" />
+              <div className="w-0.5 h-8 bg-line flex-shrink-0" />
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-text tracking-tight uppercase">Associação Casa Hacker</span>
                 <span className="text-xs font-bold text-text-secondary uppercase tracking-wide leading-none">PMO Data Analytics</span>
