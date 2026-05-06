@@ -78,9 +78,8 @@ export default function App() {
   const [selectedProject, setSelectedProject] = useState("All");
   const [selectedAssignee, setSelectedAssignee] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string[]>([]);
   const [filterPriority, setFilterPriority] = useState<string[]>([]);
-  const [filterType, setFilterType] = useState<string[]>([]);
+  const [filterOverdue, setFilterOverdue] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("pmo_darkMode") === "1");
@@ -204,7 +203,7 @@ export default function App() {
   };
 
   useEffect(() => { fetchData(); }, []);
-  useEffect(() => { setCurrentPage(1); }, [selectedProject, selectedAssignee, searchQuery, filterStatus, filterPriority, filterType]);
+  useEffect(() => { setCurrentPage(1); }, [selectedProject, selectedAssignee, searchQuery, filterPriority]);
 
   const filteredIssues = useMemo(() => {
     return normalizedIssues.filter(i => {
@@ -213,22 +212,19 @@ export default function App() {
       const matchSearch = searchQuery === "" ||
         i.key.toLowerCase().includes(searchQuery.toLowerCase()) ||
         i.summary.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchStatus = filterStatus.length === 0 || filterStatus.includes(i.statusCategory) || filterStatus.includes(i.status);
       const matchPriority = filterPriority.length === 0 || filterPriority.includes(i.priority);
-      const matchType = filterType.length === 0 || filterType.includes(i.issueType);
-      return matchProject && matchAssignee && matchSearch && matchStatus && matchPriority && matchType;
+      return matchProject && matchAssignee && matchSearch && matchPriority;
     });
-  }, [normalizedIssues, selectedProject, selectedAssignee, searchQuery, filterStatus, filterPriority, filterType]);
+  }, [normalizedIssues, selectedProject, selectedAssignee, searchQuery, filterPriority]);
 
-  const activeFilterCount = filterStatus.length + filterPriority.length + filterType.length;
+  const activeFilterCount = filterPriority.length;
 
   const clearAllFilters = useCallback(() => {
     setSelectedProject("All");
     setSelectedAssignee("All");
     setSearchQuery("");
-    setFilterStatus([]);
     setFilterPriority([]);
-    setFilterType([]);
+    setFilterOverdue(false);
   }, []);
 
   const reportIssues = useMemo(() => {
@@ -286,9 +282,9 @@ export default function App() {
   const assignees = useMemo(() => Array.from(new Set(normalizedIssues.map(i => i.assignee).filter(Boolean))).sort() as string[], [normalizedIssues]);
 
   // Computed unique values for advanced filters
-  const availableStatuses = useMemo(() => Array.from(new Set(normalizedIssues.map(i => i.statusCategory).filter(Boolean))).sort() as string[], [normalizedIssues]);
+  // availableStatuses removed — Status filter moved out of UI per design decision
   const availablePriorities = useMemo(() => Array.from(new Set(normalizedIssues.map(i => i.priority).filter(Boolean))).sort() as string[], [normalizedIssues]);
-  const availableTypes = useMemo(() => Array.from(new Set(normalizedIssues.map(i => i.issueType).filter(Boolean))).sort() as string[], [normalizedIssues]);
+  // availableTypes removed — Tipo filter moved out of UI per design decision
 
   const kpis = useMemo(() => getKPISummary(filteredIssues), [filteredIssues]);
   const statusData = useMemo(() => getIssuesByStatus(filteredIssues), [filteredIssues]);
@@ -328,8 +324,10 @@ export default function App() {
   }, [planningIssues, filteredIssues]);
 
   const diligenceAnomalies = useMemo(() => {
-    return filteredIssues.filter(i => i.isDiligence).sort((a,b) => (b.isOverdue ? 1 : 0) - (a.isOverdue ? 1 : 0));
-  }, [filteredIssues]);
+    return filteredIssues
+      .filter(i => i.isDiligence && (!filterOverdue || i.isOverdue))
+      .sort((a, b) => (b.isOverdue ? 1 : 0) - (a.isOverdue ? 1 : 0));
+  }, [filteredIssues, filterOverdue]);
 
   const totalPages = Math.ceil(diligenceAnomalies.length / itemsPerPage);
   const paginatedDiligence = useMemo(() => {
@@ -362,30 +360,25 @@ export default function App() {
     copyTimerRef.current = setTimeout(() => setCopySuccess(false), 2000);
   }, [selectedProject]);
 
-  const exportToCSV = useCallback(() => {
+  const exportDiligenceToXLS = useCallback(() => {
+    if (diligenceAnomalies.length === 0) return;
     const data = diligenceAnomalies.map(i => ({
-      Key: i.key, Projeto: i.projectName, Resumo: i.summary, Status: i.statusName,
-      Prioridade: i.priority, Responsável: i.assignee || "Sem Responsável",
-      "Vencimento": i.dueDate ? format(parseISO(i.dueDate), "dd/MM/yyyy") : "N/A",
-      "Dívida Técnica": i.missingFields.join(", ")
+      Chave: i.key,
+      Projeto: i.projectName,
+      Identificação: i.summary,
+      Status: i.statusName,
+      Prioridade: i.priority,
+      Responsável: i.assignee || "Sem Responsável",
+      Sprint: i.sprintName || "",
+      Vencimento: i.dueDate ? format(parseISO(i.dueDate), "dd/MM/yyyy") : "",
+      Atrasada: i.isOverdue ? "Sim" : "Não",
+      Score: `${(i.completenessScore * 100).toFixed(0)}%`,
+      Pendências: i.missingFields.join(", "),
     }));
-    if (data.length === 0) return;
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(","),
-      ...data.map(row => headers.map(header => {
-        const val = (row as any)[header] || "";
-        return `"${val.toString().replace(/"/g, '""')}"`;
-      }).join(","))
-    ].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const filename = `diligencia_${selectedProject === "All" ? "todos" : selectedProject}_${format(new Date(), "yyyy-MM-dd")}.csv`;
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Diligências");
+    XLSX.writeFile(wb, `diligencia_${selectedProject === "All" ? "todos" : selectedProject}_${format(new Date(), "yyyy-MM-dd")}.xlsx`);
   }, [diligenceAnomalies, selectedProject]);
 
   const exportToXLSX = useCallback(() => {
@@ -521,6 +514,7 @@ export default function App() {
         onHighContrastToggle={() => setHighContrast(v => !v)}
         fontScale={fontScale}
         onFontScaleChange={setFontScale}
+        onReset={() => { setHighContrast(false); setFontScale(0); }}
       />
       <div className="flex flex-1">
         <Sidebar
@@ -538,15 +532,9 @@ export default function App() {
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           lastFetchedAt={lastFetchedAt}
-          availableStatuses={availableStatuses}
           availablePriorities={availablePriorities}
-          availableTypes={availableTypes}
-          filterStatus={filterStatus}
           filterPriority={filterPriority}
-          filterType={filterType}
-          onFilterStatusChange={setFilterStatus}
           onFilterPriorityChange={setFilterPriority}
-          onFilterTypeChange={setFilterType}
         />
 
         <main id="main-content" className="flex-1 overflow-x-hidden flex flex-col min-w-0">
@@ -581,36 +569,6 @@ export default function App() {
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                {/* Advanced filters toggle */}
-                <button
-                  onClick={() => setShowAdvancedFilters(v => !v)}
-                  className={cn(
-                    "hidden sm:flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded border text-xs font-bold uppercase transition-colors",
-                    (showAdvancedFilters || activeFilterCount > 0)
-                      ? "bg-primary/10 border-primary/30 text-primary"
-                      : "bg-sidebar border-line text-text-secondary hover:bg-sidebar-active"
-                  )}
-                  aria-label="Filtros avançados"
-                  aria-expanded={showAdvancedFilters}
-                >
-                  <Filter className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Filtros</span>
-                  {activeFilterCount > 0 && (
-                    <span className="bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full leading-none">{activeFilterCount}</span>
-                  )}
-                </button>
-
-                {/* Excel export */}
-                <button
-                  onClick={exportToXLSX}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded border border-line bg-sidebar text-text-secondary hover:bg-sidebar-active text-xs font-bold uppercase transition-colors"
-                  aria-label="Exportar Excel"
-                  title="Exportar dados filtrados em Excel"
-                >
-                  <FileDown className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">Excel</span>
-                </button>
-
                 {/* Dark mode toggle */}
                 <button
                   onClick={() => setDarkMode(v => !v)}
@@ -628,65 +586,6 @@ export default function App() {
                 </div>
               </div>
             </div>
-
-            {/* Advanced filters bar */}
-            {showAdvancedFilters && (
-              <div className="mt-3 pt-3 border-t border-line flex flex-wrap gap-3 items-start">
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-text-secondary uppercase tracking-wide">Status</span>
-                  <div className="flex flex-wrap gap-1">
-                    {availableStatuses.map(s => (
-                      <button
-                        key={s}
-                        onClick={() => setFilterStatus(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])}
-                        className={cn(
-                          "px-2 py-1 text-[11px] font-bold uppercase rounded border transition-colors",
-                          filterStatus.includes(s) ? "bg-primary text-white border-primary" : "bg-sidebar border-line text-text-secondary hover:bg-sidebar-active"
-                        )}
-                      >{s}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-text-secondary uppercase tracking-wide">Prioridade</span>
-                  <div className="flex flex-wrap gap-1">
-                    {availablePriorities.map(p => (
-                      <button
-                        key={p}
-                        onClick={() => setFilterPriority(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p])}
-                        className={cn(
-                          "px-2 py-1 text-[11px] font-bold uppercase rounded border transition-colors",
-                          filterPriority.includes(p) ? "bg-primary text-white border-primary" : "bg-sidebar border-line text-text-secondary hover:bg-sidebar-active"
-                        )}
-                      >{p}</button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-xs font-bold text-text-secondary uppercase tracking-wide">Tipo</span>
-                  <div className="flex flex-wrap gap-1">
-                    {availableTypes.map(t => (
-                      <button
-                        key={t}
-                        onClick={() => setFilterType(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t])}
-                        className={cn(
-                          "px-2 py-1 text-[11px] font-bold uppercase rounded border transition-colors",
-                          filterType.includes(t) ? "bg-primary text-white border-primary" : "bg-sidebar border-line text-text-secondary hover:bg-sidebar-active"
-                        )}
-                      >{t}</button>
-                    ))}
-                  </div>
-                </div>
-                {activeFilterCount > 0 && (
-                  <button
-                    onClick={() => { setFilterStatus([]); setFilterPriority([]); setFilterType([]); }}
-                    className="self-end px-3 py-1.5 text-xs font-bold text-error border border-error/30 rounded hover:bg-error/10 transition-colors flex items-center gap-1"
-                  >
-                    <X className="w-3 h-3" /> Limpar filtros avançados
-                  </button>
-                )}
-              </div>
-            )}
           </header>
 
           {/* Error banner */}
@@ -839,7 +738,9 @@ export default function App() {
                       setSearchQuery={setSearchQuery}
                       copySuccess={copySuccess}
                       copyShareLink={copyShareLink}
-                      exportToCSV={exportToCSV}
+                      exportToXLS={exportDiligenceToXLS}
+                      filterOverdue={filterOverdue}
+                      onFilterOverdueChange={setFilterOverdue}
                       onOpenIssueDetail={openIssueDetail}
                     />
                   )}

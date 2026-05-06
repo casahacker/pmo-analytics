@@ -1,5 +1,5 @@
 import React from "react";
-import { Share2, FileDown, ExternalLink, Check, CheckCircle, ChevronRight } from "lucide-react";
+import { Share2, FileDown, ExternalLink, Check, CheckCircle, ChevronRight, Clock } from "lucide-react";
 import { TextInput } from "../TextInput";
 import { format, parseISO } from "date-fns";
 import { cn } from "../../lib/utils";
@@ -20,7 +20,9 @@ interface DiligenceTabProps {
   setSearchQuery: (q: string) => void;
   copySuccess: boolean;
   copyShareLink: () => void;
-  exportToCSV: () => void;
+  exportToXLS: () => void;
+  filterOverdue: boolean;
+  onFilterOverdueChange: (v: boolean) => void;
   onOpenIssueDetail: (issue: NormalizedIssue, list: NormalizedIssue[]) => void;
 }
 
@@ -38,7 +40,9 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
   setSearchQuery,
   copySuccess,
   copyShareLink,
-  exportToCSV,
+  exportToXLS,
+  filterOverdue,
+  onFilterOverdueChange,
   onOpenIssueDetail,
 }) => {
   return (
@@ -64,13 +68,28 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
             {copySuccess ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
             <span className="text-xs font-bold uppercase">{copySuccess ? "Copiado!" : "Compartilhar Filtro"}</span>
           </button>
+
+          {/* Filtro Atrasada */}
+          <button
+            onClick={() => onFilterOverdueChange(!filterOverdue)}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded border text-xs font-bold uppercase transition-all",
+              filterOverdue
+                ? "bg-error text-white border-error"
+                : "bg-sidebar border-line text-text-secondary hover:bg-sidebar-active"
+            )}
+            title={filterOverdue ? "Mostrar todas as pendências" : "Mostrar apenas atrasadas"}
+          >
+            <Clock className="w-3 h-3" />
+            Atrasada{filterOverdue && "s"}
+          </button>
         </div>
         <div className="flex items-center gap-4">
-          <button onClick={exportToCSV} className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded text-xs font-bold uppercase transition-colors">
-            <FileDown className="w-3 h-3" /> Exportar Report (.CSV)
+          <button onClick={exportToXLS} className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 rounded text-xs font-bold uppercase transition-colors">
+            <FileDown className="w-3 h-3" /> Exportar (.XLS)
           </button>
           <div className="text-xs text-text-secondary font-bold uppercase">
-            Exibindo <span className="text-error font-bold">{diligenceAnomalies.length}</span> pendências detectadas
+            Exibindo <span className="text-error font-bold">{diligenceAnomalies.length}</span> pendências{filterOverdue && " atrasadas"}
           </div>
         </div>
       </div>

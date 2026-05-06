@@ -6,6 +6,7 @@ interface AccessibilityBarProps {
   onHighContrastToggle: () => void;
   fontScale: 0 | 1 | 2;
   onFontScaleChange: (v: 0 | 1 | 2) => void;
+  onReset: () => void;
 }
 
 export const AccessibilityBar: React.FC<AccessibilityBarProps> = ({
@@ -13,7 +14,9 @@ export const AccessibilityBar: React.FC<AccessibilityBarProps> = ({
   onHighContrastToggle,
   fontScale,
   onFontScaleChange,
+  onReset,
 }) => {
+  const hasCustomSettings = highContrast || fontScale !== 0;
   return (
     <div
       role="toolbar"
@@ -67,6 +70,21 @@ export const AccessibilityBar: React.FC<AccessibilityBarProps> = ({
           Tamanho de Fonte
         </span>
       </div>
+
+      {/* Reset button — only visible when any setting is active */}
+      {hasCustomSettings && (
+        <>
+          <div className="w-px h-4 bg-white/20 mx-1" aria-hidden="true" />
+          <button
+            onClick={onReset}
+            aria-label="Redefinir configurações de acessibilidade"
+            title="Redefinir tudo ao padrão"
+            className="flex items-center gap-1 px-2 h-6 rounded text-[11px] font-bold uppercase tracking-wide text-[#aaa] hover:bg-white/10 hover:text-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
+          >
+            Redefinir
+          </button>
+        </>
+      )}
     </div>
   );
 };
