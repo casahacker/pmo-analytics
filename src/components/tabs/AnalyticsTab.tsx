@@ -42,7 +42,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ id, title, subtitle, className = 
             <Maximize2 className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="flex-1 min-h-0">{children(false)}</div>
+        <div className="flex-1 min-h-0 overflow-hidden">{children(false)}</div>
       </div>
 
       {isExpanded && (
@@ -147,7 +147,8 @@ const CalendarHeatmap: React.FC<{ data: Record<string, number> }> = ({ data }) =
   const LEGEND_COLORS = ["#e0e0e0", "#bfdbfe", "#93c5fd", "#3b82f6", "#1d4ed8", "#0f62fe"];
 
   return (
-    <div className="overflow-x-auto custom-scrollbar" style={{ overflowX: "auto" }}>
+    <div className="overflow-x-auto custom-scrollbar" role="img" aria-label="Mapa de calor de atividade dos últimos 12 meses">
+      <p className="text-[10px] text-text-secondary/50 text-right mb-1 sm:hidden select-none">← deslize para ver →</p>
       <svg width={W} height={H} overflow="visible" style={{ display: "block", minWidth: W, fontFamily: "IBM Plex Sans, sans-serif" }}>
         {/* Month labels */}
         {monthLabels.map(({ label, x }, i) => (
@@ -516,7 +517,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
 
       <ChartCard id="sankey" title="Diagrama de Fluxo — Tipo × Status" subtitle="Distribuição proporcional de issues por tipo de artefato e estado do ciclo de vida" className="col-span-12" expandedChart={ec} onExpand={onExpand}>
         {(expanded) => (
-          <div className={expanded ? "h-full" : "h-72"}>
+          <div className={expanded ? "h-full" : "h-48 sm:h-64 md:h-72"}>
             <CustomSankey data={sankeyData} expanded={expanded} />
           </div>
         )}
