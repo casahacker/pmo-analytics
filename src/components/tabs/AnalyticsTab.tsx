@@ -914,6 +914,14 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
               dot: "bg-primary", title: "Top Workload",
               text: <><span className="text-text">O que mede:</span> Concentração de volume de trabalho por colaborador.<br /><span className="text-text">Lógica:</span> Volume total de issues ativas atribuídas por usuário. Ranking decrescente dos 10 usuários com maior número de chaves associadas. Monitora risco de sobrecarga operacional.</>
             },
+            {
+              dot: "bg-warning", title: "Distribuição de Idade do Backlog",
+              text: <><span className="text-text">O que mede:</span> Saúde do backlog em aberto pelo tempo desde a criação de cada issue.<br /><span className="text-text">Lógica:</span> Issues com <code>statusCategory ≠ done</code> agrupadas em buckets: 0–7d (fresco), 8–15d, 16–30d, 31–60d, 61–90d e &gt;90d (crítico). Cor em gradiente verde→vermelho. Backlog dominado por buckets vermelhos indica débito acumulado ou falta de priorização.</>
+            },
+            {
+              dot: "bg-error", title: "Cycle Time Scatterplot",
+              text: <><span className="text-text">O que mede:</span> Distribuição do tempo de ciclo de cada issue concluída ao longo do tempo.<br /><span className="text-text">Lógica:</span> <code>cycle_time = resolvedAt − dateStart</code> (ou <code>created</code> se dateStart ausente). Cada ponto representa uma issue: eixo X = semana de conclusão (dd/MM), eixo Y = dias decorridos, cor = projeto. Clusters acima da média indicam gargalos; tendência crescente sinaliza aumento de complexidade ou débito operacional.</>
+            },
           ].map(({ dot, title, text }) => (
             <div key={title} className="space-y-3">
               <h4 className="text-[11px] font-bold text-text uppercase tracking-tight flex items-center gap-2">
