@@ -1,16 +1,11 @@
 import React from "react";
-import { Document, Page, Text, View, StyleSheet, Font } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { format } from "date-fns";
 
-Font.register({
-  family: "IBMPlexSans",
-  fonts: [
-    { src: "/fonts/IBMPlexSans-Regular.ttf",  fontWeight: 400 },
-    { src: "/fonts/IBMPlexSans-SemiBold.ttf", fontWeight: 600 },
-    { src: "/fonts/IBMPlexSans-Bold.ttf",     fontWeight: 700 },
-  ],
-});
-Font.registerHyphenationCallback(w => [w]);
+// react-pdf built-in fonts — no external fetch, zero network dependency
+// Regular text → Helvetica | Bold text → Helvetica-Bold
+const FONT_REG  = "Helvetica";
+const FONT_BOLD = "Helvetica-Bold";
 
 const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
@@ -39,14 +34,13 @@ const C = {
 // ─── Styles ─────────────────────────────────────────────────
 const s = StyleSheet.create({
   page: {
-    fontFamily: "IBMPlexSans", fontSize: 9, color: C.ink,
+    fontFamily: FONT_REG, fontSize: 9, color: C.ink,
     backgroundColor: C.white,
     paddingTop: 40, paddingBottom: 52, paddingHorizontal: 42,
   },
   pageNumber: {
-    position: "absolute", fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700,
-    bottom: 18, right: 42, color: C.disabled,
-    textTransform: "uppercase", letterSpacing: 0.1,
+    position: "absolute", fontSize: 7, fontFamily: FONT_BOLD,
+    bottom: 18, right: 42, color: C.disabled, textTransform: "uppercase",
   },
 
   // ── Header
@@ -55,59 +49,39 @@ const s = StyleSheet.create({
     borderBottomWidth: 2, borderBottomColor: C.ink, borderBottomStyle: "solid",
     paddingBottom: 12, marginBottom: 16,
   },
-  headerLeft: { flexDirection: "column" },
+  headerLeft:   { flexDirection: "column" },
   headerAccent: { width: 28, height: 3, backgroundColor: C.blue, marginBottom: 8 },
   orgName: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700, color: C.ink,
-    textTransform: "uppercase", letterSpacing: 0.1, marginBottom: 1,
+    fontSize: 7, fontFamily: FONT_BOLD, color: C.ink,
+    textTransform: "uppercase", marginBottom: 1,
   },
   orgSub: {
-    fontSize: 6, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.subtle,
-    textTransform: "uppercase", letterSpacing: 0.1, marginBottom: 8,
+    fontSize: 6, fontFamily: FONT_REG, color: C.subtle,
+    textTransform: "uppercase", marginBottom: 8,
   },
   reportTitle: {
-    fontSize: 22, fontFamily: "IBMPlexSans", fontWeight: 700, color: C.ink, marginBottom: 2,
+    fontSize: 22, fontFamily: FONT_BOLD, color: C.ink, marginBottom: 2,
   },
-  projectSubtitle: {
-    fontSize: 8, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.subtle,
-  },
-  refNumber: {
-    fontSize: 6.5, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.disabled, marginTop: 3,
-  },
-  headerRight: { flexDirection: "column", alignItems: "flex-end" },
-  statusBadge: {
-    paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1.5, marginBottom: 5,
-  },
-  statusText: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", letterSpacing: 0.1,
-  },
-  cycleText: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700, color: C.disabled,
-    textTransform: "uppercase", letterSpacing: 0.1,
-  },
-  emissionText: {
-    fontSize: 6, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.disabled, marginTop: 2,
-  },
+  projectSubtitle: { fontSize: 8, fontFamily: FONT_REG, color: C.subtle },
+  refNumber:       { fontSize: 6.5, fontFamily: FONT_REG, color: C.disabled, marginTop: 3 },
+  headerRight:     { flexDirection: "column", alignItems: "flex-end" },
+  statusBadge:     { paddingHorizontal: 8, paddingVertical: 3, borderWidth: 1.5, marginBottom: 5 },
+  statusText:      { fontSize: 7, fontFamily: FONT_BOLD, textTransform: "uppercase" },
+  cycleText:       { fontSize: 7, fontFamily: FONT_BOLD, color: C.disabled, textTransform: "uppercase" },
+  emissionText:    { fontSize: 6, fontFamily: FONT_REG, color: C.disabled, marginTop: 2 },
 
   // ── Section bar
-  sectionBar: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
+  sectionBar:       { flexDirection: "row", alignItems: "center", marginBottom: 8 },
   sectionBarAccent: { width: 3, height: 12, backgroundColor: C.blue, marginRight: 6 },
-  sectionBarText: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700, color: C.ink,
-    textTransform: "uppercase", letterSpacing: 0.1,
-  },
-  sectionBarCount: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.subtle, marginLeft: 4,
-  },
+  sectionBarText:   { fontSize: 7, fontFamily: FONT_BOLD, color: C.ink, textTransform: "uppercase" },
+  sectionBarCount:  { fontSize: 7, fontFamily: FONT_REG, color: C.subtle, marginLeft: 4 },
 
   // ── Issue lists
-  listsRow: { flexDirection: "row", marginBottom: 12 },
+  listsRow:     { flexDirection: "row", marginBottom: 12 },
   listCol:      { flex: 1 },
   listColLeft:  { marginRight: 6 },
   listColRight: { marginLeft: 6 },
-  listBox: { padding: 10, borderWidth: 1, borderStyle: "solid" },
+  listBox:      { padding: 10, borderWidth: 1, borderStyle: "solid" },
   listBoxGreen: { backgroundColor: C.greenBg, borderColor: C.greenBorder },
   listBoxRose:  { backgroundColor: C.redBg,   borderColor: C.redBorder   },
   listHeader: {
@@ -115,12 +89,9 @@ const s = StyleSheet.create({
     paddingBottom: 5, marginBottom: 6,
     borderBottomWidth: 1, borderBottomStyle: "solid",
   },
-  listHeaderGreen: { borderBottomColor: C.greenBorder },
-  listHeaderRose:  { borderBottomColor: C.redBorder   },
-  listHeaderText: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", letterSpacing: 0.1,
-  },
+  listHeaderGreen:     { borderBottomColor: C.greenBorder },
+  listHeaderRose:      { borderBottomColor: C.redBorder   },
+  listHeaderText:      { fontSize: 7, fontFamily: FONT_BOLD, textTransform: "uppercase" },
   listHeaderGreenText: { color: C.greenDark },
   listHeaderRoseText:  { color: C.redDark   },
   issueRow: {
@@ -128,40 +99,23 @@ const s = StyleSheet.create({
     paddingBottom: 4, marginBottom: 3,
     borderBottomWidth: 0.5, borderBottomStyle: "solid",
   },
-  issueRowGreen: { borderBottomColor: C.greenBorder },
-  issueRowRose:  { borderBottomColor: C.redBorder   },
-  issueKey:      { fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700, width: 56, flexShrink: 0 },
-  issueKeyGreen: { color: C.greenDark },
-  issueKeyRose:  { color: C.redDark   },
-  issueContent:  { flex: 1 },
-  issueSummary: {
-    fontSize: 8, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.text, lineHeight: 1.3,
-  },
-  issueMeta: {
-    fontSize: 6.5, fontFamily: "IBMPlexSans", fontWeight: 400,
-    color: C.subtle, marginTop: 2, lineHeight: 1.2,
-  },
-  issueBottleneck: {
-    fontSize: 6.5, fontFamily: "IBMPlexSans", fontWeight: 700,
-    color: C.red, textTransform: "uppercase", marginTop: 2,
-  },
-  emptyText: {
-    fontSize: 8, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.disabled,
-    textAlign: "center", paddingTop: 12, paddingBottom: 12,
-  },
+  issueRowGreen:   { borderBottomColor: C.greenBorder },
+  issueRowRose:    { borderBottomColor: C.redBorder   },
+  issueKey:        { fontSize: 7, fontFamily: FONT_BOLD, width: 56, flexShrink: 0 },
+  issueKeyGreen:   { color: C.greenDark },
+  issueKeyRose:    { color: C.redDark   },
+  issueContent:    { flex: 1 },
+  issueSummary:    { fontSize: 8, fontFamily: FONT_REG, color: C.text, lineHeight: 1.3 },
+  issueMeta:       { fontSize: 6.5, fontFamily: FONT_REG, color: C.subtle, marginTop: 2, lineHeight: 1.2 },
+  issueBottleneck: { fontSize: 6.5, fontFamily: FONT_BOLD, color: C.red, textTransform: "uppercase", marginTop: 2 },
+  emptyText:       { fontSize: 8, fontFamily: FONT_REG, color: C.disabled, textAlign: "center", paddingTop: 12, paddingBottom: 12 },
 
   // ── Bottleneck legend
-  legendBox: {
-    marginTop: 8, paddingTop: 6,
-    borderTopWidth: 0.5, borderTopColor: C.redBorder, borderTopStyle: "solid",
-  },
-  legendTitle: {
-    fontSize: 6, fontFamily: "IBMPlexSans", fontWeight: 700, color: C.redDark,
-    textTransform: "uppercase", letterSpacing: 0.1, marginBottom: 4,
-  },
+  legendBox:  { marginTop: 8, paddingTop: 6, borderTopWidth: 0.5, borderTopColor: C.redBorder, borderTopStyle: "solid" },
+  legendTitle: { fontSize: 6, fontFamily: FONT_BOLD, color: C.redDark, textTransform: "uppercase", marginBottom: 4 },
   legendItem: { flexDirection: "row", alignItems: "center", marginBottom: 2.5 },
   legendDot:  { width: 5, height: 5, marginRight: 5 },
-  legendText: { fontSize: 6.5, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.text },
+  legendText: { fontSize: 6.5, fontFamily: FONT_REG, color: C.text },
 
   // ── KPI box
   kpiBox: {
@@ -169,115 +123,55 @@ const s = StyleSheet.create({
     borderLeftWidth: 3, borderLeftColor: C.blue, borderLeftStyle: "solid",
     marginBottom: 12,
   },
-  kpiTitle: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", letterSpacing: 0.1, color: C.ink, marginBottom: 10,
-  },
+  kpiTitle:   { fontSize: 7, fontFamily: FONT_BOLD, textTransform: "uppercase", color: C.ink, marginBottom: 10 },
   kpiDivider: { width: "100%", height: 0.5, backgroundColor: C.border, marginBottom: 10 },
-  kpiGrid:  { flexDirection: "row" },
-  kpiItem:  { flex: 1 },
-  kpiLabel: {
-    fontSize: 6.5, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", color: C.subtle, letterSpacing: 0.1, marginBottom: 2,
-  },
-  kpiValue:      { fontSize: 22, fontFamily: "IBMPlexSans", fontWeight: 700, marginBottom: 2 },
+  kpiGrid:    { flexDirection: "row" },
+  kpiItem:    { flex: 1 },
+  kpiLabel:   { fontSize: 6.5, fontFamily: FONT_BOLD, textTransform: "uppercase", color: C.subtle, marginBottom: 2 },
+  kpiValue:   { fontSize: 22, fontFamily: FONT_BOLD, marginBottom: 2 },
   kpiValueBlack: { color: C.ink  },
   kpiValueRed:   { color: C.red  },
   kpiValueBlue:  { color: C.blue },
-  kpiUnit: { fontSize: 8, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.subtle },
-  kpiDesc: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.disabled,
-    lineHeight: 1.4, maxWidth: 130,
-  },
+  kpiUnit:    { fontSize: 8, fontFamily: FONT_REG, color: C.subtle },
+  kpiDesc:    { fontSize: 7, fontFamily: FONT_REG, color: C.disabled, lineHeight: 1.4, maxWidth: 130 },
 
   // ── Observations + Signature
-  obsSignRow: { flexDirection: "row", marginBottom: 16 },
-  obsCol:     { flex: 1, marginRight: 14 },
-  signCol:    { flex: 1, marginLeft: 14 },
+  obsSignRow:  { flexDirection: "row", marginBottom: 16 },
+  obsCol:      { flex: 1, marginRight: 14 },
+  signCol:     { flex: 1, marginLeft: 14 },
   fieldTitle: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", letterSpacing: 0.1, color: C.ink,
+    fontSize: 7, fontFamily: FONT_BOLD, textTransform: "uppercase", color: C.ink,
     borderBottomWidth: 1, borderBottomColor: C.border, borderBottomStyle: "solid",
     paddingBottom: 4, marginBottom: 6,
   },
-  obsArea: {
-    minHeight: 56,
-    borderWidth: 0.5, borderColor: C.border, borderStyle: "solid",
-    backgroundColor: C.bg, padding: 7,
-  },
-  obsText: {
-    fontSize: 8, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.text, lineHeight: 1.4,
-  },
-  obsPlaceholder: {
-    fontSize: 8, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.disabled, lineHeight: 1.4,
-  },
-  signNameBox: {
-    borderWidth: 0.5, borderColor: C.border, borderStyle: "solid",
-    backgroundColor: C.bg, padding: 6, marginBottom: 4,
-  },
-  signNameText: {
-    fontSize: 9, fontFamily: "IBMPlexSans", fontWeight: 700, color: C.ink,
-  },
-  signRoleText: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.subtle, marginTop: 1,
-  },
+  obsArea:        { minHeight: 56, borderWidth: 0.5, borderColor: C.border, borderStyle: "solid", backgroundColor: C.bg, padding: 7 },
+  obsText:        { fontSize: 8, fontFamily: FONT_REG, color: C.text, lineHeight: 1.4 },
+  obsPlaceholder: { fontSize: 8, fontFamily: FONT_REG, color: C.disabled, lineHeight: 1.4 },
+  signNameBox:    { borderWidth: 0.5, borderColor: C.border, borderStyle: "solid", backgroundColor: C.bg, padding: 6, marginBottom: 4 },
+  signNameText:   { fontSize: 9,  fontFamily: FONT_BOLD, color: C.ink  },
+  signRoleText:   { fontSize: 7,  fontFamily: FONT_REG,  color: C.subtle, marginTop: 1 },
   signLineSpacer: { flex: 1 },
-  signLine: {
-    borderTopWidth: 1, borderTopColor: C.ink, borderTopStyle: "solid",
-    paddingTop: 4, marginTop: 12, alignItems: "center",
-  },
-  signLineLabel: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", color: C.ink, textAlign: "center",
-  },
-  signLineOrg: {
-    fontSize: 6, fontFamily: "IBMPlexSans", fontWeight: 400,
-    textTransform: "uppercase", color: C.subtle,
-    letterSpacing: 0.1, textAlign: "center", marginTop: 2,
-  },
+  signLine:       { borderTopWidth: 1, borderTopColor: C.ink, borderTopStyle: "solid", paddingTop: 4, marginTop: 12, alignItems: "center" },
+  signLineLabel:  { fontSize: 7, fontFamily: FONT_BOLD, textTransform: "uppercase", color: C.ink, textAlign: "center" },
+  signLineOrg:    { fontSize: 6, fontFamily: FONT_REG, textTransform: "uppercase", color: C.subtle, textAlign: "center", marginTop: 2 },
 
   // ── Footer
-  footer: {
-    borderTopWidth: 1, borderTopColor: C.border, borderTopStyle: "solid", paddingTop: 8,
-  },
-  footerTopRow: {
-    flexDirection: "row", justifyContent: "space-between",
-    alignItems: "flex-start", marginBottom: 6,
-  },
-  footerLeft:         { flexDirection: "column" },
-  footerTitle: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", color: C.ink, marginBottom: 2,
-  },
-  footerProject: {
-    fontSize: 6.5, fontFamily: "IBMPlexSans", fontWeight: 400,
-    textTransform: "uppercase", color: C.subtle, marginBottom: 2,
-  },
-  footerConfidential: {
-    fontSize: 6, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", color: C.red, letterSpacing: 0.1,
-  },
-  footerRight: { flexDirection: "column", alignItems: "flex-end" },
-  footerOrg: {
-    fontSize: 7, fontFamily: "IBMPlexSans", fontWeight: 700,
-    color: C.ink, textAlign: "right", marginBottom: 2,
-  },
-  footerAddr: {
-    fontSize: 6, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.subtle, textAlign: "right",
-  },
+  footer:      { borderTopWidth: 1, borderTopColor: C.border, borderTopStyle: "solid", paddingTop: 8 },
+  footerTopRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 },
+  footerLeft:          { flexDirection: "column" },
+  footerTitle:         { fontSize: 7,   fontFamily: FONT_BOLD, textTransform: "uppercase", color: C.ink,    marginBottom: 2 },
+  footerProject:       { fontSize: 6.5, fontFamily: FONT_REG,  textTransform: "uppercase", color: C.subtle, marginBottom: 2 },
+  footerConfidential:  { fontSize: 6,   fontFamily: FONT_BOLD, textTransform: "uppercase", color: C.red },
+  footerRight:         { flexDirection: "column", alignItems: "flex-end" },
+  footerOrg:           { fontSize: 7,   fontFamily: FONT_BOLD, color: C.ink,    textAlign: "right", marginBottom: 2 },
+  footerAddr:          { fontSize: 6,   fontFamily: FONT_REG,  color: C.subtle, textAlign: "right" },
   legalBox: {
     backgroundColor: C.bg, paddingVertical: 6, paddingHorizontal: 10,
-    borderLeftWidth: 2, borderLeftColor: C.ink, borderLeftStyle: "solid",
-    marginBottom: 6,
+    borderLeftWidth: 2, borderLeftColor: C.ink, borderLeftStyle: "solid", marginBottom: 6,
   },
-  legalText: {
-    fontSize: 6.5, fontFamily: "IBMPlexSans", fontWeight: 400, color: C.subtle, lineHeight: 1.5,
-  },
-  footerMeta: { flexDirection: "row", justifyContent: "space-between" },
-  metaText: {
-    fontSize: 6, fontFamily: "IBMPlexSans", fontWeight: 700,
-    textTransform: "uppercase", color: C.disabled, letterSpacing: 0.1,
-  },
+  legalText:   { fontSize: 6.5, fontFamily: FONT_REG, color: C.subtle, lineHeight: 1.5 },
+  footerMeta:  { flexDirection: "row", justifyContent: "space-between" },
+  metaText:    { fontSize: 6, fontFamily: FONT_BOLD, textTransform: "uppercase", color: C.disabled },
 });
 
 // ─── Status helpers ──────────────────────────────────────────
@@ -294,12 +188,12 @@ function statusColor(st: RelatorioPDFProps["reportStatus"]) {
   return C.border;
 }
 
-// ─── Bottleneck severity ──────────────────────────────────────
+// ─── Bottleneck legend config ─────────────────────────────────
 const BOTTLENECK_DOTS: [string, string, string][] = [
-  ["Atraso:",              "Tarefa com prazo vencido",                                         C.red       ],
-  ["Impedimento:",         "Tarefa bloqueada por dependência externa",                          C.yellow    ],
-  ["Inativo:",             "Sem movimentação na Tarefa e/ou Subtarefa por mais de 15 dias",    C.yellow    ],
-  ["Aguardando Alocação:", "Tarefa no fluxo do mês aguardando execução",                       C.disabled  ],
+  ["Atraso:",              "Tarefa com prazo vencido",                                       C.red      ],
+  ["Impedimento:",         "Tarefa bloqueada por dependência externa",                        C.yellow   ],
+  ["Inativo:",             "Sem movimentação na Tarefa e/ou Subtarefa por mais de 15 dias",  C.yellow   ],
+  ["Aguardando Alocação:", "Tarefa no fluxo do mês aguardando execução",                     C.disabled ],
 ];
 
 // ─── Types ───────────────────────────────────────────────────
@@ -368,7 +262,7 @@ export function RelatorioPDF({
 
           {/* Concluídas */}
           <View style={[s.listCol, s.listColLeft]}>
-            <View style={[s.sectionBar]}>
+            <View style={s.sectionBar}>
               <View style={s.sectionBarAccent} />
               <Text style={s.sectionBarText}>Concluídas no Período</Text>
               <Text style={s.sectionBarCount}>({completedIssues.length})</Text>
@@ -378,22 +272,21 @@ export function RelatorioPDF({
                 <Text style={[s.listHeaderText, s.listHeaderGreenText]}>Entregas Realizadas</Text>
                 <Text style={[s.listHeaderText, s.listHeaderGreenText]}>{completedIssues.length} itens</Text>
               </View>
-              {completedIssues.length === 0 ? (
-                <Text style={s.emptyText}>Nenhuma entrega concluída no período.</Text>
-              ) : (
-                completedIssues.map(issue => (
+              {completedIssues.length === 0
+                ? <Text style={s.emptyText}>Nenhuma entrega concluída no período.</Text>
+                : completedIssues.map(issue => (
                   <View key={issue.key} style={[s.issueRow, s.issueRowGreen]} wrap={false}>
                     <Text style={[s.issueKey, s.issueKeyGreen]}>{issue.key}</Text>
                     <Text style={s.issueSummary}>{issue.summary}</Text>
                   </View>
                 ))
-              )}
+              }
             </View>
           </View>
 
           {/* Pendentes */}
           <View style={[s.listCol, s.listColRight]}>
-            <View style={[s.sectionBar]}>
+            <View style={s.sectionBar}>
               <View style={[s.sectionBarAccent, { backgroundColor: C.red }]} />
               <Text style={s.sectionBarText}>Pendentes / Em Aberto</Text>
               <Text style={s.sectionBarCount}>({pendingIssues.length})</Text>
@@ -403,10 +296,9 @@ export function RelatorioPDF({
                 <Text style={[s.listHeaderText, s.listHeaderRoseText]}>Itens em Aberto</Text>
                 <Text style={[s.listHeaderText, s.listHeaderRoseText]}>{pendingIssues.length} itens</Text>
               </View>
-              {pendingIssues.length === 0 ? (
-                <Text style={s.emptyText}>Fila de execução limpa.</Text>
-              ) : (
-                pendingIssues.map(issue => (
+              {pendingIssues.length === 0
+                ? <Text style={s.emptyText}>Fila de execução limpa.</Text>
+                : pendingIssues.map(issue => (
                   <View key={issue.key} style={[s.issueRow, s.issueRowRose]} wrap={false}>
                     <Text style={[s.issueKey, s.issueKeyRose]}>{issue.key}</Text>
                     <View style={s.issueContent}>
@@ -420,7 +312,7 @@ export function RelatorioPDF({
                     </View>
                   </View>
                 ))
-              )}
+              }
               {/* Legenda de severidade */}
               <View style={s.legendBox}>
                 <Text style={s.legendTitle}>Significado dos Status de Gargalo</Text>
@@ -428,7 +320,7 @@ export function RelatorioPDF({
                   <View key={label} style={s.legendItem}>
                     <View style={[s.legendDot, { backgroundColor: dotColor }]} />
                     <Text style={s.legendText}>
-                      <Text style={{ fontFamily: "IBMPlexSans", fontWeight: 700 }}>{label}</Text> {desc}
+                      <Text style={{ fontFamily: FONT_BOLD }}>{label}</Text>{" "}{desc}
                     </Text>
                   </View>
                 ))}
