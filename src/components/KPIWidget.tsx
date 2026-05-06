@@ -8,6 +8,7 @@ interface KPIWidgetProps {
   value: string | number;
   icon: LucideIcon;
   description?: string;
+  progress?: number;
   trend?: {
     value: number;
     positive: boolean;
@@ -16,7 +17,7 @@ interface KPIWidgetProps {
 }
 
 export const KPIWidget: React.FC<KPIWidgetProps> = ({
-  title, value, icon: Icon, description, trend, className
+  title, value, icon: Icon, description, progress, trend, className
 }) => {
   return (
     <motion.div
@@ -35,7 +36,7 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
         <h3 className="text-3xl font-bold text-text tracking-tight">{value}</h3>
         {trend && (
           <span className={cn(
-            "text-[10px] font-bold tracking-tight px-1.5 py-0.5 rounded",
+            "text-xs font-bold tracking-tight px-1.5 py-0.5 rounded",
             trend.positive ? "bg-success/10 text-success" : "bg-error/10 text-error"
           )}>
             {trend.positive ? "+" : "-"}{Math.abs(trend.value)}%
@@ -44,10 +45,15 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
       </div>
       {description && (
         <div className="mt-2 flex items-center gap-2">
-           <div className="flex-grow h-1 bg-line overflow-hidden">
+           <div className={cn("flex-grow h-1 bg-line overflow-hidden", progress === 0 && "opacity-40")}>
               <div
-                className="h-full bg-warning"
-                style={{ width: value.toString().includes('%') ? value.toString() : '50%' }}
+                className={cn(
+                  "h-full",
+                  progress !== undefined
+                    ? progress >= 80 ? "bg-success" : progress >= 50 ? "bg-warning" : "bg-error"
+                    : "bg-warning"
+                )}
+                style={{ width: progress !== undefined ? `${progress}%` : "0%" }}
               />
            </div>
            <p className="text-xs font-medium text-text-secondary uppercase whitespace-nowrap">{description}</p>

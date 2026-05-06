@@ -116,7 +116,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                   </a>
                 </div>
                 <p className="text-sm text-text mb-8 text-left">Em caso de dúvidas, favor contatar o Analista do PMO no canal do Slack <span className="font-bold">#Escritório de Projetos</span>.</p>
-                <div className="pt-6 border-t border-line text-[9px] text-text-secondary uppercase leading-relaxed text-left">
+                <div className="pt-6 border-t border-line text-xs text-text-secondary uppercase leading-relaxed text-left">
                   <p className="font-bold text-text-secondary mb-1">Confidencial - Uso Interno</p>
                   <p>© 2026 Associação Casa Hacker • CNPJ 36.038.079/0001-97</p>
                   <p>R. DR. RENATO PAES DE BARROS, 618 – ITAIM BIBI, SÃO PAULO – SP, 04530-000</p>

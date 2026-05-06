@@ -11,7 +11,8 @@ import {
   ExternalLink,
   Copy,
   Check,
-  PenLine
+  PenLine,
+  SearchX
 } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { KPIWidget } from "./components/KPIWidget";
@@ -357,7 +358,7 @@ export default function App() {
       />
 
       <main className="flex-1 overflow-x-hidden flex flex-col">
-        <header className="px-10 py-6 border-b border-line flex justify-between items-end bg-sidebar">
+        <header className="px-8 py-5 border-b border-line flex justify-between items-end bg-sidebar">
           <div>
             <div className="flex items-center gap-4 mb-2">
               <img
@@ -370,7 +371,7 @@ export default function App() {
                 <span className="text-xl font-light text-text-secondary uppercase tracking-wide leading-none">PMO Data Analytics</span>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-1.5 h-1.5 bg-[#198038] rounded-full shadow-[0_0_8px_rgba(25,128,56,0.5)]"></div>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-tighter">API REST jira.casahacker.org</span>
+                  <span className="text-xs font-bold text-text-secondary uppercase tracking-tighter">API REST jira.casahacker.org</span>
                 </div>
               </div>
             </div>
@@ -385,7 +386,7 @@ export default function App() {
             </h2>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-[10px] text-text-secondary uppercase font-semibold">Filtro Ativo</span>
+            <span className="text-xs text-text-secondary uppercase font-semibold">Filtro Ativo</span>
             <span className="text-xs text-text font-medium">{selectedProject === "All" ? `Em ${projectData.length} Projetos` : selectedProject}</span>
           </div>
         </header>
@@ -410,13 +411,20 @@ export default function App() {
                 value={(kpis.avgCompleteness * 100).toFixed(1) + "%"}
                 icon={CheckCircle2}
                 description="Score de Qualidade"
+                progress={Math.round(kpis.avgCompleteness * 100)}
               />
             </div>
             <div className="col-span-3">
               <KPIWidget title="Vol. Backlog" value={kpis.openIssues} icon={Clock} />
             </div>
 
-            {currentTab === "analytics" ? (
+            {filteredIssues.length === 0 && currentTab === "analytics" ? (
+              <div className="col-span-12 flex flex-col items-center justify-center py-24 gap-4 text-center">
+                <SearchX className="w-10 h-10 text-line" />
+                <p className="text-sm font-bold text-text">Nenhuma issue encontrada</p>
+                <p className="text-xs text-text-secondary max-w-xs">O filtro ativo não retornou resultados. Selecione outro projeto ou ajuste os filtros na barra lateral.</p>
+              </div>
+            ) : currentTab === "analytics" ? (
               <AnalyticsTab
                 trendData={trendData}
                 overdueDist={overdueDist}
@@ -498,7 +506,7 @@ export default function App() {
           </div>
         </div>
 
-        <footer className="px-10 py-10 border-t border-line flex flex-col gap-8 text-[10px] text-text-secondary font-bold uppercase tracking-wide mt-auto">
+        <footer className="px-8 py-6 border-t border-line flex flex-col gap-6 text-xs text-text-secondary font-bold uppercase tracking-wide mt-auto">
           <div className="flex justify-between items-center">
             <div className="flex gap-6">
               <span>Python 3.11</span>
@@ -512,7 +520,7 @@ export default function App() {
             <div className="space-y-1">
               <div className="text-success/80">Confidencial - Uso Interno</div>
               <div>© 2026 Associação Casa Hacker • CNPJ 36.038.079/0001-97</div>
-              <div className="normal-case text-text-secondary font-medium tracking-normal text-[9px]">R. DR. RENATO PAES DE BARROS, 618 – ITAIM BIBI, SÃO PAULO – SP, 04530-000</div>
+              <div className="normal-case text-text-secondary font-medium tracking-normal text-xs">R. DR. RENATO PAES DE BARROS, 618 – ITAIM BIBI, SÃO PAULO – SP, 04530-000</div>
             </div>
           </div>
         </footer>
@@ -610,17 +618,17 @@ export default function App() {
                 </div>
               </div>
               <div className="pt-4 flex justify-end gap-3 flex-wrap">
-                <button onClick={() => setSelectedIssueForDetail(null)} className="px-4 py-2 text-[10px] font-bold uppercase text-text-secondary hover:text-text transition-colors">Fechar</button>
+                <button onClick={() => setSelectedIssueForDetail(null)} className="px-4 py-2 text-xs font-bold uppercase text-text-secondary hover:text-text transition-colors">Fechar</button>
                 <button
                   onClick={() => copyLinkToIssueDetail(selectedIssueForDetail.key)}
-                  className={cn("px-6 py-2 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2 border",
+                  className={cn("px-6 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border",
                     modalCopySuccess ? "bg-success/10 border-success text-success" : "bg-sidebar border-line text-text hover:bg-sidebar-active"
                   )}
                 >
                   {modalCopySuccess ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   {modalCopySuccess ? "Link Copiado!" : "Copiar Link de Pendência"}
                 </button>
-                <button onClick={() => window.open(`https://jira.casahacker.org/browse/${selectedIssueForDetail.key}`, "_blank")} className="bg-primary hover:opacity-90 text-white px-6 py-2 rounded text-[10px] font-bold uppercase tracking-wider transition-all flex items-center gap-2">
+                <button onClick={() => window.open(`https://jira.casahacker.org/browse/${selectedIssueForDetail.key}`, "_blank")} className="bg-primary hover:opacity-90 text-white px-6 py-2 rounded text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2">
                   Corrigir no Jira <ExternalLink className="w-3 h-3" />
                 </button>
               </div>

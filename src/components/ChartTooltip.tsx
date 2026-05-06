@@ -1,5 +1,4 @@
 import React from "react";
-import { TOOLTIP_STYLE } from "../lib/constants";
 
 interface PayloadEntry {
   name: string;
@@ -62,27 +61,14 @@ export const ChartTooltip: React.FC<ChartTooltipProps> = ({
   const displayLabel = labelFormatter ? labelFormatter(label ?? "") : formatLabel(label ?? "");
 
   return (
-    <div
-      style={{
-        ...TOOLTIP_STYLE,
-        padding: "8px 12px",
-        border: `1px solid ${TOOLTIP_STYLE.borderColor}`,
-        borderRadius: TOOLTIP_STYLE.borderRadius,
-        backgroundColor: TOOLTIP_STYLE.backgroundColor,
-        fontSize: TOOLTIP_STYLE.fontSize,
-        color: TOOLTIP_STYLE.color,
-        minWidth: "120px",
-      }}
-    >
+    <div className="bg-card border border-line rounded px-3 py-2 min-w-[120px] text-xs text-text shadow-sm">
       {displayLabel && (
-        <p style={{ fontWeight: 700, marginBottom: 4, borderBottom: "1px solid #e0e0e0", paddingBottom: 4 }}>
-          {displayLabel}
-        </p>
+        <p className="font-bold mb-1 pb-1 border-b border-line">{displayLabel}</p>
       )}
       {payload.map((entry, i) => (
-        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, marginTop: 2 }}>
-          <span style={{ color: entry.color ?? "#525252", fontWeight: 600 }}>{entry.name}</span>
-          <span style={{ fontWeight: 700 }}>
+        <div key={i} className="flex justify-between gap-3 mt-0.5">
+          <span className="font-semibold" style={{ color: entry.color ?? "var(--color-text-secondary, #525252)" }}>{entry.name}</span>
+          <span className="font-bold">
             {valueFormatter ? valueFormatter(entry.value, entry.name) : formatValue(entry.value)}
             {entry.unit ? ` ${entry.unit}` : ""}
           </span>

@@ -68,7 +68,7 @@ export function DataTable<T extends Record<string, unknown>>({
                 <th
                   key={String(col.key)}
                   className={cn(
-                    "px-4 py-3 text-[10px] font-bold uppercase tracking-wider text-text-secondary whitespace-nowrap",
+                    "px-4 py-3 text-xs font-bold uppercase tracking-wider text-text-secondary whitespace-nowrap",
                     col.align === "center" && "text-center",
                     col.align === "right" && "text-right",
                     col.sortable && "cursor-pointer select-none hover:text-text transition-colors",
@@ -93,7 +93,7 @@ export function DataTable<T extends Record<string, unknown>>({
           <tbody>
             {paged.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-4 py-8 text-center text-text-secondary text-[11px]">
+                <td colSpan={columns.length} className="px-4 py-8 text-center text-text-secondary text-xs">
                   Nenhum registro encontrado.
                 </td>
               </tr>

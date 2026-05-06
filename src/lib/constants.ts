@@ -15,7 +15,7 @@ export const STATUS_COLORS: Record<string, string> = {
 export const TOOLTIP_STYLE = {
   backgroundColor: '#ffffff',
   borderColor: '#e0e0e0',
-  borderRadius: '4px',
-  fontSize: '11px',
+  borderRadius: '2px',
+  fontSize: '12px',
   color: '#161616'
 };

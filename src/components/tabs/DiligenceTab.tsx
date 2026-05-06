@@ -1,5 +1,6 @@
 import React from "react";
 import { Share2, FileDown, ExternalLink, Check, CheckCircle } from "lucide-react";
+import { TextInput } from "../TextInput";
 import { format, parseISO } from "date-fns";
 import { cn } from "../../lib/utils";
 import { NormalizedIssue } from "../../lib/dataProcessor";
@@ -51,16 +52,13 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
               {projectData.map(p => <option key={p.key} value={p.key}>{p.name} ({p.key})</option>)}
             </select>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-text-secondary font-bold uppercase whitespace-nowrap">Busca:</span>
-            <input
-              type="text"
-              placeholder="Chave ou identificação..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-sidebar text-xs font-bold py-1.5 px-3 rounded border border-line text-text outline-none focus:border-primary transition-colors w-48 placeholder:text-text-secondary/40"
-            />
-          </div>
+          <TextInput
+            placeholder="Chave ou identificação..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-48 font-bold"
+            aria-label="Buscar issue"
+          />
           <button onClick={copyShareLink} className={cn("flex items-center gap-2 px-3 py-1.5 rounded border transition-all", copySuccess ? "bg-success/20 border-success text-success" : "bg-sidebar border-line text-text hover:bg-sidebar-active")} title="Copiar link com filtro de projeto">
             {copySuccess ? <Check className="w-3 h-3" /> : <Share2 className="w-3 h-3" />}
             <span className="text-xs font-bold uppercase">{copySuccess ? "Copiado!" : "Compartilhar Filtro"}</span>

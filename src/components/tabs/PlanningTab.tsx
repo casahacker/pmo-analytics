@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar, FileText, ExternalLink, AlertTriangle, ShieldAlert, ListChecks, Timer } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "../../lib/utils";
 import { NormalizedIssue } from "../../lib/dataProcessor";
 import { StatusTag } from "../StatusTag";
+import { Pagination } from "../Pagination";
 
 interface PlanningKPIS {
   total: number;
@@ -40,6 +41,14 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
   setCurrentTab,
   setSelectedIssueForDetail,
 }) => {
+  const ITEMS_PER_PAGE = 25;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => { setCurrentPage(1); }, [planningIssues]);
+
+  const totalPages = Math.ceil(planningIssues.length / ITEMS_PER_PAGE);
+  const paginatedIssues = planningIssues.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   return (
     <div className="col-span-12 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-card p-6 rounded border border-line gap-6">
@@ -116,9 +125,14 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
       </div>
 
       <div className="bento-card p-8">
-        <h3 className="text-xs font-bold text-text uppercase tracking-widest mb-6 flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-text-secondary" /> Cronograma Mensal de Execução
-        </h3>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xs font-bold text-text uppercase tracking-widest flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-text-secondary" /> Cronograma Mensal de Execução
+          </h3>
+          {planningIssues.length > 0 && (
+            <Pagination page={currentPage} totalPages={totalPages || 1} onPageChange={setCurrentPage} totalItems={planningIssues.length} pageSize={ITEMS_PER_PAGE} />
+          )}
+        </div>
         {planningIssues.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center text-center gap-4 opacity-40">
             <Calendar className="w-12 h-12 text-text-secondary" />
@@ -139,7 +153,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                 </tr>
               </thead>
               <tbody className="text-xs">
-                {planningIssues.slice(0, 50).map(issue => (
+                {paginatedIssues.map(issue => (
                   <tr key={issue.key} className="border-b border-line hover:bg-sidebar-active transition-colors group">
                     <td className="py-4 px-4 font-mono text-primary font-bold">{issue.key}</td>
                     <td className="py-4 px-4">

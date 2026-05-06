@@ -32,7 +32,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ id, title, subtitle, className = 
         <div className="flex justify-between items-start mb-4 shrink-0">
           <div>
             <h3 className="text-xs font-bold text-text uppercase tracking-wide">{title}</h3>
-            {subtitle && <p className="text-[10px] text-text-secondary mt-0.5">{subtitle}</p>}
+            {subtitle && <p className="text-xs text-text-secondary mt-0.5">{subtitle}</p>}
           </div>
           <button
             onClick={() => onExpand(id)}
@@ -82,7 +82,7 @@ const ChartCard: React.FC<ChartCardProps> = ({ id, title, subtitle, className = 
 const SectionLabel: React.FC<{ label: string }> = ({ label }) => (
   <div className="col-span-12 flex items-center gap-3 pt-4">
     <div className="h-px flex-1 bg-line" />
-    <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest whitespace-nowrap">{label}</span>
+    <span className="text-xs font-bold text-text-secondary uppercase tracking-widest whitespace-nowrap">{label}</span>
     <div className="h-px flex-1 bg-line" />
   </div>
 );
@@ -491,10 +491,10 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
               <div key={proj.key} className="flex items-center justify-between group">
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-text group-hover:text-primary transition-colors truncate max-w-[160px]">{proj.name}</span>
-                  <span className="text-[9px] text-text-secondary uppercase font-bold tracking-tight">{proj.key}</span>
+                  <span className="text-xs text-text-secondary uppercase font-bold tracking-tight">{proj.key}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={cn("text-[9px] font-mono px-2 py-0.5 rounded font-bold",
+                  <span className={cn("text-xs font-mono px-2 py-0.5 rounded font-bold",
                     proj.rate > 30 ? "bg-error/10 text-error" : proj.rate > 10 ? "bg-warning/10 text-warning" : "bg-success/10 text-success"
                   )}>{proj.rate}%</span>
                   <div className={cn("w-1.5 h-1.5 rounded", proj.rate > 30 ? "bg-error" : proj.rate > 10 ? "bg-warning" : "bg-success")} />
@@ -631,7 +631,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           <div className={cn("overflow-y-auto custom-scrollbar pr-2 space-y-3", expanded ? "h-full" : "h-64")}>
             {missingFieldsData.map(item => (
               <div key={item.name} className="space-y-1">
-                <div className="flex justify-between text-[10px] font-bold uppercase text-text-secondary">
+                <div className="flex justify-between text-xs font-bold uppercase text-text-secondary">
                   <span>{item.name}</span>
                   <span className="text-primary">{item.value}</span>
                 </div>
@@ -665,7 +665,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           <div className={cn("overflow-y-auto custom-scrollbar pr-2 space-y-3", expanded ? "h-full" : "h-64")}>
             {healthAssigneeData.map(user => (
               <div key={user.name} className="flex items-center justify-between">
-                <span className="text-[10px] font-bold text-text-secondary truncate max-w-[130px]">{user.name}</span>
+                <span className="text-xs font-bold text-text-secondary truncate max-w-[130px]">{user.name}</span>
                 <div className="flex items-center gap-2">
                   <div className="w-20 h-1 bg-line overflow-hidden">
                     <div
@@ -673,7 +673,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                       style={{ width: `${user.score}%` }}
                     />
                   </div>
-                  <span className="text-[9px] font-mono font-bold text-text-secondary w-8 text-right">{user.score.toFixed(0)}%</span>
+                  <span className="text-xs font-mono font-bold text-text-secondary w-8 text-right">{user.score.toFixed(0)}%</span>
                 </div>
               </div>
             ))}
@@ -846,7 +846,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                 <div className="flex items-center justify-center h-full text-text-secondary text-xs">Sem issues concluídas no filtro ativo</div>
               )}
               {cycleTimeData.length > 0 && (
-                <p className="text-[9px] text-text-secondary mt-1">Média: <span className="font-bold text-primary">{meanDays}d</span> · {cycleTimeData.length} issues concluídas</p>
+                <p className="text-xs text-text-secondary mt-1">Média: <span className="font-bold text-primary">{meanDays}d</span> · {cycleTimeData.length} issues concluídas</p>
               )}
             </div>
           );
@@ -861,7 +861,7 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
           </div>
           <div>
             <h2 className="text-sm font-bold text-text uppercase tracking-wide">Dicionário de Métricas & Lógica Analítica</h2>
-            <p className="text-[10px] text-text-secondary font-bold uppercase">Referência Técnica para Decisores</p>
+            <p className="text-xs text-text-secondary font-bold uppercase">Referência Técnica para Decisores</p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -924,11 +924,11 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
             },
           ].map(({ dot, title, text }) => (
             <div key={title} className="space-y-3">
-              <h4 className="text-[11px] font-bold text-text uppercase tracking-tight flex items-center gap-2">
+              <h4 className="text-xs font-bold text-text uppercase tracking-tight flex items-center gap-2">
                 <span className={`w-1.5 h-1.5 rounded ${dot}`} />
                 {title}
               </h4>
-              <p className="text-[10px] text-text-secondary leading-relaxed">{text}</p>
+              <p className="text-xs text-text-secondary leading-relaxed">{text}</p>
             </div>
           ))}
         </div>
