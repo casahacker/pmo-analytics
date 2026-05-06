@@ -846,7 +846,17 @@ export const AnalyticsTab: React.FC<AnalyticsTabProps> = ({
                 <div className="flex items-center justify-center h-full text-text-secondary text-xs">Sem issues concluídas no filtro ativo</div>
               )}
               {cycleTimeData.length > 0 && (
-                <p className="text-xs text-text-secondary mt-1">Média: <span className="font-bold text-primary">{meanDays}d</span> · {cycleTimeData.length} issues concluídas</p>
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-1">
+                  <p className="text-xs text-text-secondary">Média: <span className="font-bold text-primary">{meanDays}d</span> · {cycleTimeData.length} issues concluídas</p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    {projectKeys.map((pk, i) => (
+                      <div key={pk} className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                        <span className="text-xs text-text-secondary font-bold">{pk}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           );

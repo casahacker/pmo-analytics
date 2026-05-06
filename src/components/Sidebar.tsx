@@ -23,6 +23,7 @@ interface SidebarProps {
   assignees: string[];
   selectedAssignee: string;
   onAssigneeChange: (assignee: string) => void;
+  diligenceCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -35,10 +36,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onProjectChange,
   assignees,
   selectedAssignee,
-  onAssigneeChange
+  onAssigneeChange,
+  diligenceCount = 0,
 }) => {
   return (
-    <aside className="w-[180px] bg-sidebar border-r border-line h-screen flex flex-col sticky top-0 overflow-y-auto">
+    <aside className="w-[220px] bg-sidebar border-r border-line h-screen flex flex-col sticky top-0 overflow-y-auto">
       <div className="pt-6 pb-8 px-5 border-b border-line">
         <div className="flex flex-col gap-3">
           <img
@@ -60,10 +62,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {[
           { id: "analytics", label: "Análise", icon: BarChart3 },
           { id: "planning", label: "Planejamento", icon: Calendar },
-          { id: "diligence", label: "Diligências", icon: ShieldCheck },
+          { id: "diligence", label: "Diligências", icon: ShieldCheck, badge: diligenceCount },
           { id: "reports", label: "Relatórios", icon: FileText },
           { id: "notifications", label: "Notificações", icon: Bell },
-        ].map(({ id, label, icon: Icon }) => (
+        ].map(({ id, label, icon: Icon, badge }) => (
           <button
             key={id}
             onClick={() => onTabChange(id)}
@@ -76,7 +78,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           >
             <Icon className="w-4 h-4 shrink-0" />
-            {label}
+            <span className="flex-1 text-left">{label}</span>
+            {badge != null && badge > 0 && (
+              <span className="text-xs font-bold bg-error/20 text-error px-1.5 py-0.5 rounded leading-none">{badge}</span>
+            )}
           </button>
         ))}
 
@@ -121,7 +126,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-sidebar hover:bg-sidebar-active border border-line text-text text-[12px] font-semibold rounded transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-sidebar hover:bg-sidebar-active border border-line text-text text-xs font-semibold rounded transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <RefreshCcw className={cn("w-3.5 h-3.5", isRefreshing && "animate-spin")} />
           {isRefreshing ? "Atualizando..." : "Atualizar"}

@@ -89,7 +89,7 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
                 <p className="text-xs font-bold text-text-secondary uppercase tracking-wide mb-1">Preview do E-mail</p>
                 <div className="flex gap-2 text-sm">
                   <span className="font-bold text-text">Assunto:</span>
-                  <span className="text-slate-900">Diligência {format(new Date(), "dd/MM/yyyy - HH:mm")} - {selectedProject === "All" ? "Global" : (projectData.find(p => p.key === selectedProject)?.name || selectedProject)}</span>
+                  <span className="text-text">Diligência {format(new Date(), "dd/MM/yyyy - HH:mm")} - {selectedProject === "All" ? "Global" : (projectData.find(p => p.key === selectedProject)?.name || selectedProject)}</span>
                 </div>
               </div>
               <div className="bg-card p-8 rounded border border-line select-all">

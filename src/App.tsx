@@ -12,7 +12,9 @@ import {
   Copy,
   Check,
   PenLine,
-  SearchX
+  SearchX,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Sidebar } from "./components/Sidebar";
 import { KPIWidget } from "./components/KPIWidget";
@@ -60,6 +62,12 @@ export default function App() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [modalCopySuccess, setModalCopySuccess] = useState(false);
   const [selectedIssueForDetail, setSelectedIssueForDetail] = useState<NormalizedIssue | null>(null);
+  const [modalIssueList, setModalIssueList] = useState<NormalizedIssue[]>([]);
+
+  const openIssueDetail = (issue: NormalizedIssue | null, list?: NormalizedIssue[]) => {
+    setSelectedIssueForDetail(issue);
+    if (list) setModalIssueList(list);
+  };
   const [showDocumensoModal, setShowDocumensoModal] = useState(false);
   const [docSignatoryName, setDocSignatoryName] = useState("");
   const [docSignatoryEmail, setDocSignatoryEmail] = useState("");
@@ -355,6 +363,7 @@ export default function App() {
         assignees={assignees}
         selectedAssignee={selectedAssignee}
         onAssigneeChange={setSelectedAssignee}
+        diligenceCount={diligenceAnomalies.length}
       />
 
       <main className="flex-1 overflow-x-hidden flex flex-col">
@@ -370,7 +379,7 @@ export default function App() {
               <div className="flex flex-col">
                 <span className="text-xl font-light text-text-secondary uppercase tracking-wide leading-none">PMO Data Analytics</span>
                 <div className="flex items-center gap-2 mt-1">
-                  <div className="w-1.5 h-1.5 bg-[#198038] rounded-full shadow-[0_0_8px_rgba(25,128,56,0.5)]"></div>
+                  <div className="w-1.5 h-1.5 bg-success rounded-sm"></div>
                   <span className="text-xs font-bold text-text-secondary uppercase tracking-tighter">API REST jira.casahacker.org</span>
                 </div>
               </div>
@@ -482,7 +491,7 @@ export default function App() {
                 setPlanningMonth={setPlanningMonth}
                 setPlanningYear={setPlanningYear}
                 setCurrentTab={setCurrentTab}
-                setSelectedIssueForDetail={setSelectedIssueForDetail}
+                onOpenIssueDetail={openIssueDetail}
               />
             ) : currentTab === "diligence" ? (
               <DiligenceTab
@@ -500,7 +509,7 @@ export default function App() {
                 copySuccess={copySuccess}
                 copyShareLink={copyShareLink}
                 exportToCSV={exportToCSV}
-                setSelectedIssueForDetail={setSelectedIssueForDetail}
+                onOpenIssueDetail={openIssueDetail}
               />
             ) : null}
           </div>
@@ -527,20 +536,38 @@ export default function App() {
       </main>
 
       {/* Issue Detail Modal */}
-      {selectedIssueForDetail && (
+      {selectedIssueForDetail && (() => {
+        const modalIdx = modalIssueList.findIndex(i => i.key === selectedIssueForDetail.key);
+        const hasList = modalIssueList.length > 1;
+        const goPrev = () => modalIdx > 0 && openIssueDetail(modalIssueList[modalIdx - 1], modalIssueList);
+        const goNext = () => modalIdx < modalIssueList.length - 1 && openIssueDetail(modalIssueList[modalIdx + 1], modalIssueList);
+        return (
         <div role="dialog" aria-modal="true" aria-label="Detalhes da Tarefa" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-card border border-line rounded w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-line flex justify-between items-start bg-sidebar">
-              <div className="space-y-1">
+              <div className="space-y-1 flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">{selectedIssueForDetail.key}</span>
                   <span className="text-xs font-bold text-text-secondary uppercase tracking-wide">{selectedIssueForDetail.projectName}</span>
                 </div>
                 <h2 className="text-lg font-bold text-text leading-tight">{selectedIssueForDetail.summary}</h2>
               </div>
-              <button onClick={() => setSelectedIssueForDetail(null)} aria-label="Fechar modal" className="p-2 hover:bg-sidebar-active rounded transition-colors text-text-secondary hover:text-text focus:outline-none focus:ring-2 focus:ring-primary">
-                <div className="w-5 h-5 flex items-center justify-center font-bold text-xl">×</div>
-              </button>
+              <div className="flex items-center gap-1 ml-4 shrink-0">
+                {hasList && (
+                  <>
+                    <span className="text-xs text-text-secondary font-bold mr-1">{modalIdx + 1}/{modalIssueList.length}</span>
+                    <button onClick={goPrev} disabled={modalIdx <= 0} aria-label="Issue anterior" className="p-1.5 rounded hover:bg-sidebar-active transition-colors text-text-secondary hover:text-text disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary">
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button onClick={goNext} disabled={modalIdx >= modalIssueList.length - 1} aria-label="Próxima issue" className="p-1.5 rounded hover:bg-sidebar-active transition-colors text-text-secondary hover:text-text disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary">
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+                <button onClick={() => setSelectedIssueForDetail(null)} aria-label="Fechar modal" className="p-2 hover:bg-sidebar-active rounded transition-colors text-text-secondary hover:text-text focus:outline-none focus:ring-2 focus:ring-primary">
+                  <div className="w-5 h-5 flex items-center justify-center font-bold text-xl">×</div>
+                </button>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -565,7 +592,7 @@ export default function App() {
                     selectedIssueForDetail.completenessScore >= 0.8 ? "text-success" :
                     selectedIssueForDetail.completenessScore >= 0.5 ? "text-warning" : "text-error"
                   )}>{(selectedIssueForDetail.completenessScore * 100).toFixed(0)}%</span>
-                  <div className="flex-1 h-1.5 bg-line rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-line overflow-hidden">
                     <div
                       className={cn("h-full transition-all",
                         selectedIssueForDetail.completenessScore >= 0.8 ? "bg-success" :
@@ -635,7 +662,8 @@ export default function App() {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Documenso Modal */}
       {showDocumensoModal && (

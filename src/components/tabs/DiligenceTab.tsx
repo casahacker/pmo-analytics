@@ -1,5 +1,5 @@
 import React from "react";
-import { Share2, FileDown, ExternalLink, Check, CheckCircle } from "lucide-react";
+import { Share2, FileDown, ExternalLink, Check, CheckCircle, ChevronRight } from "lucide-react";
 import { TextInput } from "../TextInput";
 import { format, parseISO } from "date-fns";
 import { cn } from "../../lib/utils";
@@ -21,7 +21,7 @@ interface DiligenceTabProps {
   copySuccess: boolean;
   copyShareLink: () => void;
   exportToCSV: () => void;
-  setSelectedIssueForDetail: (issue: NormalizedIssue | null) => void;
+  onOpenIssueDetail: (issue: NormalizedIssue, list: NormalizedIssue[]) => void;
 }
 
 export const DiligenceTab: React.FC<DiligenceTabProps> = ({
@@ -39,7 +39,7 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
   copySuccess,
   copyShareLink,
   exportToCSV,
-  setSelectedIssueForDetail,
+  onOpenIssueDetail,
 }) => {
   return (
     <div className="col-span-12 space-y-4">
@@ -56,6 +56,7 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
             placeholder="Chave ou identificação..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onClear={() => setSearchQuery("")}
             className="w-48 font-bold"
             aria-label="Buscar issue"
           />
@@ -89,14 +90,15 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
             </div>
           </div>
           <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left min-w-[1000px]">
+            <table className="w-full text-left min-w-[1100px]">
               <thead>
                 <tr className="text-xs uppercase text-text-secondary border-b border-line font-bold tracking-wide">
                   <th className="pb-3 px-4">Projeto</th>
                   <th className="pb-3 px-4">Chave</th>
-                  <th className="pb-3 px-4 min-w-[300px]">Identificação</th>
+                  <th className="pb-3 px-4 min-w-[260px]">Identificação</th>
                   <th className="pb-3 px-4">Responsável</th>
-                  <th className="pb-3 px-4 text-center min-w-[140px]">Entrega</th>
+                  <th className="pb-3 px-4">Sprint</th>
+                  <th className="pb-3 px-4 text-center min-w-[120px]">Entrega</th>
                   <th className="pb-3 px-4 text-center">Score</th>
                   <th className="pb-3 px-4">Pendências</th>
                   <th className="pb-3 px-4 text-right">Acesso</th>
@@ -105,7 +107,7 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
               <tbody className="text-xs">
                 {paginatedDiligence.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="py-16 text-center">
+                    <td colSpan={9} className="py-16 text-center">
                       <CheckCircle className="w-8 h-8 text-success mx-auto mb-3" />
                       <p className="text-sm font-bold text-text">Nenhuma pendência detectada</p>
                       <p className="text-xs text-text-secondary mt-1">Todas as issues do filtro ativo estão com campos obrigatórios preenchidos.</p>
@@ -113,7 +115,7 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
                   </tr>
                 )}
                 {paginatedDiligence.map(issue => (
-                  <tr key={issue.key} className="border-b border-line hover:bg-sidebar-active transition-colors group cursor-pointer" onClick={() => setSelectedIssueForDetail(issue)}>
+                  <tr key={issue.key} className="border-b border-line hover:bg-sidebar-active transition-colors group cursor-pointer" onClick={() => onOpenIssueDetail(issue, paginatedDiligence)}>
                     <td className="py-4 px-4"><span className="text-xs font-bold text-text-secondary group-hover:text-text transition-colors uppercase tracking-tight">{issue.projectName}</span></td>
                     <td className="py-4 px-4 font-mono text-primary font-bold">{issue.key}</td>
                     <td className="py-4 px-4">
@@ -121,8 +123,13 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
                       <p className="text-xs text-text-secondary uppercase font-bold tracking-tight">{issue.issueType}</p>
                     </td>
                     <td className="py-4 px-4">
-                      <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold", issue.assignee ? "bg-sidebar border border-line text-text-secondary" : "bg-error/10 text-error uppercase")}>
+                      <span className={cn("px-2 py-0.5 rounded text-xs font-bold", issue.assignee ? "bg-sidebar border border-line text-text-secondary" : "bg-error/10 text-error uppercase")}>
                         {issue.assignee || "Não Atribuído"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-xs text-text-secondary font-medium truncate max-w-[100px] block">
+                        {issue.sprintName || <span className="text-text-secondary/50">—</span>}
                       </span>
                     </td>
                     <td className="py-4 px-4 text-center">
@@ -152,9 +159,12 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
                       </div>
                     </td>
                     <td className="py-4 px-4 text-right">
-                      <a href={`https://jira.casahacker.org/browse/${issue.key}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-text-secondary hover:text-primary transition-colors inline-flex items-center justify-end w-full" title="Abrir no Jira">
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
+                      <div className="flex items-center justify-end gap-1">
+                        <ChevronRight className="w-3.5 h-3.5 text-text-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <a href={`https://jira.casahacker.org/browse/${issue.key}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-text-secondary hover:text-primary transition-colors" title="Abrir no Jira">
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -25,7 +25,7 @@ interface PlanningTabProps {
   setPlanningMonth: (m: number) => void;
   setPlanningYear: (y: number) => void;
   setCurrentTab: (tab: string) => void;
-  setSelectedIssueForDetail: (issue: NormalizedIssue | null) => void;
+  onOpenIssueDetail: (issue: NormalizedIssue, list: NormalizedIssue[]) => void;
 }
 
 export const PlanningTab: React.FC<PlanningTabProps> = ({
@@ -39,7 +39,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
   setPlanningMonth,
   setPlanningYear,
   setCurrentTab,
-  setSelectedIssueForDetail,
+  onOpenIssueDetail,
 }) => {
   const ITEMS_PER_PAGE = 25;
   const [currentPage, setCurrentPage] = useState(1);
@@ -145,7 +145,9 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                 <tr className="text-xs uppercase text-text-secondary border-b border-line font-bold tracking-wide pb-3">
                   <th className="pb-3 px-4">Chave</th>
                   <th className="pb-3 px-4">Identificação</th>
+                  {selectedProject === "All" && <th className="pb-3 px-4">Projeto</th>}
                   <th className="pb-3 px-4">Responsável</th>
+                  <th className="pb-3 px-4">Sprint</th>
                   <th className="pb-3 px-4 text-center">Data Entrega</th>
                   <th className="pb-3 px-4 text-center">Status</th>
                   <th className="pb-3 px-4 text-center">Diligência</th>
@@ -160,9 +162,19 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                       <p className="text-text font-semibold group-hover:text-primary transition-colors">{issue.summary}</p>
                       <p className="text-xs text-text-secondary uppercase font-bold tracking-tight">{issue.issueType}</p>
                     </td>
+                    {selectedProject === "All" && (
+                      <td className="py-4 px-4">
+                        <span className="text-xs font-bold text-text-secondary uppercase tracking-tight">{issue.projectName}</span>
+                      </td>
+                    )}
                     <td className="py-4 px-4">
                       <span className={cn("px-2 py-0.5 rounded text-xs font-bold", issue.assignee ? "bg-sidebar border border-line text-text-secondary" : "bg-error/10 text-error uppercase")}>
                         {issue.assignee || "Não Atribuído"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-xs text-text-secondary font-medium truncate max-w-[100px] block">
+                        {issue.sprintName || <span className="text-text-secondary/50">—</span>}
                       </span>
                     </td>
                     <td className="py-4 px-4 text-center">
@@ -184,7 +196,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                     </td>
                     <td className="py-4 px-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => setSelectedIssueForDetail(issue)} className="p-1.5 rounded bg-sidebar border border-line text-text-secondary hover:bg-sidebar-active hover:text-text transition-colors" title="Ver Detalhes">
+                        <button onClick={() => onOpenIssueDetail(issue, paginatedIssues)} className="p-1.5 rounded bg-sidebar border border-line text-text-secondary hover:bg-sidebar-active hover:text-text transition-colors" title="Ver Detalhes">
                           <FileText className="w-3.5 h-3.5" />
                         </button>
                         <a href={`https://jira.casahacker.org/browse/${issue.key}`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded bg-primary/10 text-primary hover:bg-primary hover:text-white transition-colors" aria-label="Abrir no Jira" title="Abrir no Jira">
