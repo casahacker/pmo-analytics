@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, FileText, ExternalLink, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Calendar, FileText, ExternalLink, AlertTriangle, ShieldAlert, ListChecks, Timer } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "../../lib/utils";
 import { NormalizedIssue } from "../../lib/dataProcessor";
@@ -45,7 +45,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-card p-6 rounded border border-line gap-6">
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">Período de Planejamento</span>
+            <span className="text-xs text-text-secondary font-bold uppercase tracking-wider">Período de Planejamento</span>
             <div className="flex gap-2">
               <select value={planningMonth} onChange={(e) => setPlanningMonth(parseInt(e.target.value))} className="bg-sidebar text-xs font-bold py-2 px-3 rounded border border-line text-text outline-none focus:border-primary transition-colors">
                 {["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"].map((m, i) => (
@@ -53,13 +53,13 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                 ))}
               </select>
               <select value={planningYear} onChange={(e) => setPlanningYear(parseInt(e.target.value))} className="bg-sidebar text-xs font-bold py-2 px-3 rounded border border-line text-text outline-none focus:border-primary transition-colors">
-                {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i).map(y => <option key={y} value={y}>{y}</option>)}
               </select>
             </div>
           </div>
           <div className="h-10 w-px bg-line hidden md:block"></div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] text-text-secondary font-bold uppercase tracking-wider">Projeto Alvo</span>
+            <span className="text-xs text-text-secondary font-bold uppercase tracking-wider">Projeto Alvo</span>
             <select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} className="bg-sidebar text-xs font-bold py-2 px-3 rounded border border-line text-text outline-none focus:border-primary transition-colors max-w-[240px]">
               <option value="All">Visão Geral (Top 10)</option>
               {projectData.map(p => <option key={p.key} value={p.key}>{p.name} ({p.key})</option>)}
@@ -67,7 +67,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
           </div>
         </div>
         <div className="text-right">
-          <p className="text-[10px] text-text-secondary font-bold uppercase mb-1">Total de Itens Planejados</p>
+          <p className="text-xs text-text-secondary font-bold uppercase mb-1">Total de Itens Planejados</p>
           <p className="text-2xl font-bold text-text leading-none">{planningKPIS.total}</p>
         </div>
       </div>
@@ -91,14 +91,18 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
             <p className="text-xs text-text-secondary font-bold uppercase tracking-wide mb-1">Tarefas (Tasks)</p>
             <p className="text-2xl font-bold text-text">{planningKPIS.tasks}</p>
           </div>
-          <div className="h-12 w-12 bg-primary/10 rounded flex items-center justify-center text-primary font-bold">T</div>
+          <div className="h-12 w-12 bg-primary/10 rounded flex items-center justify-center text-primary">
+            <ListChecks className="w-5 h-5" />
+          </div>
         </div>
         <div className="bento-card p-6 flex items-center justify-between">
           <div>
             <p className="text-xs text-text-secondary font-bold uppercase tracking-wide mb-1">Subtarefas</p>
             <p className="text-2xl font-bold text-text">{planningKPIS.subtasks}</p>
           </div>
-          <div className="h-12 w-12 bg-primary/10 rounded flex items-center justify-center text-primary font-bold">S</div>
+          <div className="h-12 w-12 bg-primary/10 rounded flex items-center justify-center text-primary">
+            <Timer className="w-5 h-5" />
+          </div>
         </div>
         <div className="bento-card p-6 flex items-center justify-between">
           <div>
@@ -124,7 +128,7 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-[10px] uppercase text-text-secondary border-b border-line font-bold tracking-wide pb-3">
+                <tr className="text-xs uppercase text-text-secondary border-b border-line font-bold tracking-wide pb-3">
                   <th className="pb-3 px-4">Chave</th>
                   <th className="pb-3 px-4">Identificação</th>
                   <th className="pb-3 px-4">Responsável</th>
@@ -140,24 +144,28 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                     <td className="py-4 px-4 font-mono text-primary font-bold">{issue.key}</td>
                     <td className="py-4 px-4">
                       <p className="text-text font-semibold group-hover:text-primary transition-colors">{issue.summary}</p>
-                      <p className="text-[9px] text-text-secondary uppercase font-bold tracking-tight">{issue.issueType}</p>
+                      <p className="text-xs text-text-secondary uppercase font-bold tracking-tight">{issue.issueType}</p>
                     </td>
                     <td className="py-4 px-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sidebar border border-line text-text-secondary">{issue.assignee || "Pendente"}</span>
+                      <span className={cn("px-2 py-0.5 rounded text-xs font-bold", issue.assignee ? "bg-sidebar border border-line text-text-secondary" : "bg-error/10 text-error uppercase")}>
+                        {issue.assignee || "Não Atribuído"}
+                      </span>
                     </td>
                     <td className="py-4 px-4 text-center">
-                      <span className="font-mono font-bold text-text-secondary">{issue.dueDate ? format(parseISO(issue.dueDate), "dd/MM/yy") : "--"}</span>
+                      <span className={cn("font-mono font-bold", issue.isOverdue ? "text-error" : "text-text-secondary")}>
+                        {issue.dueDate ? format(parseISO(issue.dueDate), "dd/MM/yyyy") : <span className="text-text-secondary">—</span>}
+                      </span>
                     </td>
                     <td className="py-4 px-4 text-center">
                       <StatusTag status={issue.status} statusCategory={issue.statusCategory as any} />
                     </td>
                     <td className="py-4 px-4 text-center">
-                      <div className="flex justify-center">
-                        {issue.isDiligence ? (
-                          <div className="w-2 h-2 bg-error rounded" title="Issue com inconformidade de dados"></div>
-                        ) : (
-                          <div className="w-2 h-2 bg-success/30 rounded"></div>
-                        )}
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span className={cn("text-xs font-bold",
+                          issue.completenessScore >= 0.8 ? "text-success" :
+                          issue.completenessScore >= 0.5 ? "text-warning" : "text-error"
+                        )}>{(issue.completenessScore * 100).toFixed(0)}%</span>
+                        {issue.isDiligence && <span className="text-[10px] text-error font-bold uppercase leading-none">Alerta</span>}
                       </div>
                     </td>
                     <td className="py-4 px-4 text-right">

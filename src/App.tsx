@@ -375,7 +375,7 @@ export default function App() {
               </div>
             </div>
             <h2 className="text-sm font-bold tracking-tight text-text-secondary capitalize">
-              Dashboard Operacional <span className="text-text-secondary font-light italic">
+              Dashboard Operacional <span className="text-text-secondary font-light">
                 {currentTab === "analytics" && "• Insights & Performance"}
                 {currentTab === "diligence" && "• Protocolo de Diligência"}
                 {currentTab === "notifications" && "• Notificações Formais"}
@@ -526,7 +526,7 @@ export default function App() {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">{selectedIssueForDetail.key}</span>
-                  <span className="text-[10px] font-bold text-text-secondary uppercase tracking-wide">{selectedIssueForDetail.projectName}</span>
+                  <span className="text-xs font-bold text-text-secondary uppercase tracking-wide">{selectedIssueForDetail.projectName}</span>
                 </div>
                 <h2 className="text-lg font-bold text-text leading-tight">{selectedIssueForDetail.summary}</h2>
               </div>
@@ -535,18 +535,39 @@ export default function App() {
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
                   { label: "Status", value: selectedIssueForDetail.status },
                   { label: "Prioridade", value: selectedIssueForDetail.priority },
                   { label: "Responsável", value: selectedIssueForDetail.assignee || "Não Atribuído" },
                   { label: "Data de Entrega", value: selectedIssueForDetail.dueDate ? format(parseISO(selectedIssueForDetail.dueDate), "dd/MM/yyyy") : "Não definida" },
+                  { label: "Tipo", value: selectedIssueForDetail.issueType },
+                  { label: "Sprint", value: selectedIssueForDetail.sprintName || "Não vinculado" },
                 ].map(({ label, value }) => (
                   <div key={label} className="p-4 bg-sidebar rounded border border-line">
-                    <div className="text-[10px] font-bold text-text-secondary uppercase mb-1">{label}</div>
+                    <div className="text-xs font-bold text-text-secondary uppercase mb-1">{label}</div>
                     <div className="text-xs font-bold text-text uppercase">{value}</div>
                   </div>
                 ))}
+              </div>
+              <div className="p-4 bg-sidebar rounded border border-line">
+                <div className="text-xs font-bold text-text-secondary uppercase mb-2">Score de Completude</div>
+                <div className="flex items-center gap-3">
+                  <span className={cn("text-lg font-bold",
+                    selectedIssueForDetail.completenessScore >= 0.8 ? "text-success" :
+                    selectedIssueForDetail.completenessScore >= 0.5 ? "text-warning" : "text-error"
+                  )}>{(selectedIssueForDetail.completenessScore * 100).toFixed(0)}%</span>
+                  <div className="flex-1 h-1.5 bg-line rounded-full overflow-hidden">
+                    <div
+                      className={cn("h-full transition-all",
+                        selectedIssueForDetail.completenessScore >= 0.8 ? "bg-success" :
+                        selectedIssueForDetail.completenessScore >= 0.5 ? "bg-warning" : "bg-error"
+                      )}
+                      style={{ width: `${(selectedIssueForDetail.completenessScore * 100).toFixed(0)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-text-secondary font-bold">{selectedIssueForDetail.missingFields.length} pendência(s)</span>
+                </div>
               </div>
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
