@@ -146,9 +146,9 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                   <th className="pb-3 px-4">Chave</th>
                   <th className="pb-3 px-4">Identificação</th>
                   {selectedProject === "All" && <th className="pb-3 px-4">Projeto</th>}
-                  <th className="pb-3 px-4">Responsável</th>
-                  <th className="pb-3 px-4">Sprint</th>
-                  <th className="pb-3 px-4 text-center">Data Entrega</th>
+                  <th className="pb-3 px-4 hidden sm:table-cell">Responsável</th>
+                  <th className="pb-3 px-4 hidden lg:table-cell">Sprint</th>
+                  <th className="pb-3 px-4 text-center hidden sm:table-cell">Data Entrega</th>
                   <th className="pb-3 px-4 text-center">Status</th>
                   <th className="pb-3 px-4 text-center">Diligência</th>
                   <th className="pb-3 px-4 text-right">Ações</th>
@@ -167,18 +167,18 @@ export const PlanningTab: React.FC<PlanningTabProps> = ({
                         <span className="text-xs font-bold text-text-secondary uppercase tracking-tight">{issue.projectName}</span>
                       </td>
                     )}
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-4 hidden sm:table-cell">
                       <span className={cn("px-2 py-0.5 rounded text-xs font-bold", issue.assignee ? "bg-sidebar border border-line text-text-secondary" : "bg-error/10 text-error uppercase")}>
                         {issue.assignee || "Não Atribuído"}
                       </span>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-4 hidden lg:table-cell">
                       <span className="text-xs text-text-secondary font-medium truncate max-w-[100px] block">
                         {issue.sprintName || <span className="text-text-secondary/50">—</span>}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-center">
-                      <span className={cn("font-mono font-bold", issue.isOverdue ? "text-error" : "text-text-secondary")}>
+                    <td className="py-4 px-4 text-center hidden sm:table-cell">
+                      <span className={cn("font-mono font-bold text-xs", issue.isOverdue ? "text-error" : "text-text-secondary")}>
                         {issue.dueDate ? format(parseISO(issue.dueDate), "dd/MM/yyyy") : <span className="text-text-secondary">—</span>}
                       </span>
                     </td>

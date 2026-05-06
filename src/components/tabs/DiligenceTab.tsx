@@ -90,18 +90,18 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
             </div>
           </div>
           <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full text-left min-w-[1100px]">
+            <table className="w-full text-left min-w-[640px]">
               <thead>
                 <tr className="text-xs uppercase text-text-secondary border-b border-line font-bold tracking-wide">
-                  <th className="pb-3 px-4">Projeto</th>
+                  <th className="pb-3 px-4 hidden lg:table-cell">Projeto</th>
                   <th className="pb-3 px-4">Chave</th>
-                  <th className="pb-3 px-4 min-w-[260px]">Identificação</th>
-                  <th className="pb-3 px-4">Responsável</th>
-                  <th className="pb-3 px-4">Sprint</th>
-                  <th className="pb-3 px-4 text-center min-w-[120px]">Entrega</th>
+                  <th className="pb-3 px-4 min-w-[200px]">Identificação</th>
+                  <th className="pb-3 px-4 hidden sm:table-cell">Responsável</th>
+                  <th className="pb-3 px-4 hidden lg:table-cell">Sprint</th>
+                  <th className="pb-3 px-4 text-center hidden sm:table-cell">Entrega</th>
                   <th className="pb-3 px-4 text-center">Score</th>
-                  <th className="pb-3 px-4">Pendências</th>
-                  <th className="pb-3 px-4 text-right">Acesso</th>
+                  <th className="pb-3 px-4 hidden md:table-cell">Pendências</th>
+                  <th className="pb-3 px-2 text-right hidden lg:table-cell">Acesso</th>
                 </tr>
               </thead>
               <tbody className="text-xs">
@@ -116,34 +116,34 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
                 )}
                 {paginatedDiligence.map(issue => (
                   <tr key={issue.key} className="border-b border-line hover:bg-sidebar-active transition-colors group cursor-pointer" onClick={() => onOpenIssueDetail(issue, paginatedDiligence)}>
-                    <td className="py-4 px-4"><span className="text-xs font-bold text-text-secondary group-hover:text-text transition-colors uppercase tracking-tight">{issue.projectName}</span></td>
-                    <td className="py-4 px-4 font-mono text-primary font-bold">{issue.key}</td>
-                    <td className="py-4 px-4">
-                      <p className="text-text font-semibold group-hover:text-primary transition-colors">{issue.summary}</p>
+                    <td className="py-4 px-4 hidden lg:table-cell"><span className="text-xs font-bold text-text-secondary group-hover:text-text transition-colors uppercase tracking-tight">{issue.projectName}</span></td>
+                    <td className="py-4 px-4 font-mono text-primary font-bold text-xs">{issue.key}</td>
+                    <td className="py-3 px-4">
+                      <p className="text-text font-semibold group-hover:text-primary transition-colors leading-snug">{issue.summary}</p>
                       <p className="text-xs text-text-secondary uppercase font-bold tracking-tight">{issue.issueType}</p>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-4 hidden sm:table-cell">
                       <span className={cn("px-2 py-0.5 rounded text-xs font-bold", issue.assignee ? "bg-sidebar border border-line text-text-secondary" : "bg-error/10 text-error uppercase")}>
                         {issue.assignee || "Não Atribuído"}
                       </span>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-4 hidden lg:table-cell">
                       <span className="text-xs text-text-secondary font-medium truncate max-w-[100px] block">
                         {issue.sprintName || <span className="text-text-secondary/50">—</span>}
                       </span>
                     </td>
-                    <td className="py-4 px-4 text-center">
+                    <td className="py-4 px-4 text-center hidden sm:table-cell">
                       <div className="flex flex-col items-center">
-                        <span className={cn("font-mono font-bold", issue.isOverdue ? "text-error" : "text-text-secondary")}>
-                          {issue.dueDate ? format(parseISO(issue.dueDate), "dd/MM/yyyy") : <span className="text-text-secondary">—</span>}
+                        <span className={cn("font-mono font-bold text-xs", issue.isOverdue ? "text-error" : "text-text-secondary")}>
+                          {issue.dueDate ? format(parseISO(issue.dueDate), "dd/MM/yy") : <span className="text-text-secondary">—</span>}
                         </span>
-                        {issue.isOverdue && <span className="text-xs text-error font-bold uppercase">Atrasada</span>}
+                        {issue.isOverdue && <span className="text-[10px] text-error font-bold uppercase">Atrasada</span>}
                       </div>
                     </td>
                     <td className="py-4 px-4 text-center">
-                      <span className={cn("font-bold", issue.completenessScore >= 0.8 ? "text-success" : issue.completenessScore >= 0.5 ? "text-warning" : "text-error")}>{(issue.completenessScore * 100).toFixed(0)}%</span>
+                      <span className={cn("font-bold text-xs", issue.completenessScore >= 0.8 ? "text-success" : issue.completenessScore >= 0.5 ? "text-warning" : "text-error")}>{(issue.completenessScore * 100).toFixed(0)}%</span>
                     </td>
-                    <td className="py-4 px-4">
+                    <td className="py-4 px-4 hidden md:table-cell">
                       <div className="flex flex-wrap gap-1">
                         {issue.missingFields.map(f => {
                           const isCritical = f === "Responsável" || f === "Data de Entrega";
@@ -158,7 +158,7 @@ export const DiligenceTab: React.FC<DiligenceTabProps> = ({
                         })}
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-right">
+                    <td className="py-4 px-2 text-right hidden lg:table-cell">
                       <div className="flex items-center justify-end gap-1">
                         <ChevronRight className="w-3.5 h-3.5 text-text-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
                         <a href={`https://jira.casahacker.org/browse/${issue.key}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="text-text-secondary hover:text-primary transition-colors" title="Abrir no Jira">

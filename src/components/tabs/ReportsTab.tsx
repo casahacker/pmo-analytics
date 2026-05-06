@@ -60,9 +60,35 @@ export const ReportsTab: React.FC<ReportsTabProps> = ({
   pdfPendingIssues,
   onOpenDocumenso,
 }) => {
-  const [observationsText, setObservationsText] = useState("");
-  const [signatoryName, setSignatoryName]       = useState("");
-  const [signatoryRole, setSignatoryRole]        = useState("");
+  const storageKey = `pmo_report_${selectedProject}_${reportYear}${String(reportMonth + 1).padStart(2, "0")}`;
+
+  const [observationsText, setObservationsText] = useState(
+    () => localStorage.getItem(`${storageKey}_obs`) ?? ""
+  );
+  const [signatoryName, setSignatoryName] = useState(
+    () => localStorage.getItem("pmo_signatoryName") ?? ""
+  );
+  const [signatoryRole, setSignatoryRole] = useState(
+    () => localStorage.getItem("pmo_signatoryRole") ?? ""
+  );
+
+  // Persist to localStorage on change
+  React.useEffect(() => {
+    localStorage.setItem(`${storageKey}_obs`, observationsText);
+  }, [storageKey, observationsText]);
+
+  React.useEffect(() => {
+    localStorage.setItem("pmo_signatoryName", signatoryName);
+  }, [signatoryName]);
+
+  React.useEffect(() => {
+    localStorage.setItem("pmo_signatoryRole", signatoryRole);
+  }, [signatoryRole]);
+
+  // Reload observations when project/month/year changes
+  React.useEffect(() => {
+    setObservationsText(localStorage.getItem(`${storageKey}_obs`) ?? "");
+  }, [storageKey]);
 
   const projectName  = projectData.find(p => p.key === selectedProject)?.name ?? selectedProject;
   const monthStr     = String(reportMonth + 1).padStart(2, "0");

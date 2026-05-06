@@ -33,7 +33,7 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
         <Icon className="w-3.5 h-3.5 text-text-secondary" />
       </div>
       <div className="flex items-baseline gap-2">
-        <h3 className="text-3xl font-bold text-text tracking-tight">{value}</h3>
+        <h3 className="text-2xl md:text-3xl font-bold text-text tracking-tight">{value}</h3>
         {trend && (
           <span className={cn(
             "text-xs font-bold tracking-tight px-1.5 py-0.5 rounded",
@@ -56,7 +56,7 @@ export const KPIWidget: React.FC<KPIWidgetProps> = ({
                 style={{ width: progress !== undefined ? `${progress}%` : "0%" }}
               />
            </div>
-           <p className="text-xs font-medium text-text-secondary uppercase whitespace-nowrap">{description}</p>
+           <p className="text-xs font-medium text-text-secondary uppercase whitespace-normal leading-tight">{description}</p>
         </div>
       )}
     </motion.div>

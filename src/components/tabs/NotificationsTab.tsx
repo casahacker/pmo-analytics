@@ -33,13 +33,13 @@ export const NotificationsTab: React.FC<NotificationsTabProps> = ({
   return (
     <div className="col-span-12 space-y-6">
       {selectedProject === "All" ? (
-        <div className="bento-card p-12 flex flex-col items-center justify-center text-center gap-4">
+        <div className="bento-card p-4 md:p-8 lg:p-12 flex flex-col items-center justify-center text-center gap-4">
           <Bell className="w-12 h-12 text-line" />
           <h3 className="text-lg font-bold text-text">Seleção Requerida</h3>
           <p className="text-sm text-text-secondary max-w-sm">Para elaborar uma notificação formal, selecione um projeto específico no menu lateral.</p>
         </div>
       ) : (
-        <div className="bento-card p-12 bg-white text-text relative overflow-hidden print:p-0 print:shadow-none print:bg-transparent">
+        <div className="bento-card p-4 md:p-8 lg:p-12 bg-white text-text relative overflow-hidden print:p-0 print:shadow-none print:bg-transparent">
           <div className="flex justify-between items-start mb-12 border-b-2 border-text pb-8">
             <div>
               <div className="flex items-center gap-2 mb-2">
